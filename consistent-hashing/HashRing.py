@@ -272,7 +272,7 @@ if __name__ == '__main__':
         # },
         {
             'username': 'pratham',
-            'hostname': '172.30.231.182',
+            'hostname': 'localhost',
             'port': workers_port,
             'vnodes': 4
         },

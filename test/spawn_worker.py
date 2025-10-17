@@ -10,13 +10,10 @@ class SpawnWorkers(rpyc.Service):
     def __init__(self):
         self.REDIS_PORT = 6379
     def exposed_spawn_worker(self, port, vnodes, spawn_whom='syntactic'):
-        logging.debug (f'SPAWN WORKER of {spawn_whom}:: Port for {spawn_whom}: {port}, vnodes = {vnodes}')
-        if spawn_whom == 'syntactic':
-            for i in range(0, vnodes):
-                Popen(['python3', './code/syntactic-worker/worker.py', str(port + i)])
-        elif spawn_whom == 'semantic':
-            for i in range(0, vnodes):
-                Popen(['python3', './code/semantic-worker/worker_semantic.py', str(port + i)])
+        logging.debug (f'SPAWN WORKER: Port {port}, vnodes = {vnodes}')
+        # Always use the main worker.py file for both semantic and syntactic
+        for i in range(0, vnodes):
+            Popen(['python3', './code/worker.py', str(port + i)])
         return "success"
     
  

@@ -84,7 +84,7 @@ class Worker(rpyc.Service):
         self.port:int = port # port at which this worker node will server
         self.start_of_range:str = "-1" 
         self.end_of_range: str = "-1"
-        self.hash_ring_url = ('172.30.231.182', 3000) # hash ring 
+        self.hash_ring_url = ('localhost', 3000) # hash ring 
         self.routing_table = dict() #* Will store the routing table of active nodes
         self.down_routing_table = dict() #* Will store all those entry which are down now
         self.hash_function = (lambda key: int(md5(str(key).encode("utf-8")).hexdigest(), 16)) # same hash function is used in hashring

@@ -366,7 +366,7 @@ if __name__ == '__main__':
         # },
         {
             'username': 'pratham',
-            'ip': '172.30.231.182',
+            'ip': 'localhost',
             'port': 3200,
             'vnodes': 4
         },
