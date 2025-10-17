@@ -183,7 +183,7 @@ class HashRing(rpyc.Service):
                     conn._config['sync_request_timeout'] = None 
                     conn.root.update_table(response_to_right_node)
             except Exception as e:
-                logging.debug ("Some thing bad happend in ring ", e)
+                logging.debug("Some thing bad happend in ring: %s", e)
             self.ring[vnode_hash] = vnode_info #add to ring
             self.keys = sorted(self.ring.keys()) #sort the keys
             logging.debug ("----"*5)

@@ -13,7 +13,7 @@ class SpawnWorkers(rpyc.Service):
         logging.debug (f'SPAWN WORKER: Port {port}, vnodes = {vnodes}')
         # Always use the main worker.py file for both semantic and syntactic
         for i in range(0, vnodes):
-            Popen(['python3', './code/worker.py', str(port + i)])
+            Popen(['python3', '../code/worker.py', str(port + i)])
         return "success"
     
  
