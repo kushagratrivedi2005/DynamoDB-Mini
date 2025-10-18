@@ -49,7 +49,7 @@ def test_client_get(key: str) -> None:
 def test_semantic_put(key: str) -> None:
     select_item: str = 'y'
     ''' talk to the client of semantic '''
-    url: tuple = ('localhost', 6002)
+    url: tuple = ('localhost', 6001)
     conn: rpyc.Connection = rpyc.connect(*url)
     logging.debug(msg=f"Semantic put:: key: {key}")
     conn._config['sync_request_timeout'] = None 
@@ -64,7 +64,7 @@ def test_semantic_put(key: str) -> None:
         
 
 def test_semantic_get(key: str) -> None:
-    url: tuple = ('localhost', 6002)
+    url: tuple = ('localhost', 6001)
     conn: rpyc.Connection = rpyc.connect(*url)
     conn._config['sync_request_timeout'] = None 
     logging.debug(msg=f'GET REQUEST : For {key}')
