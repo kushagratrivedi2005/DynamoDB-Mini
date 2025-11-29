@@ -1,11 +1,33 @@
 #!/bin/bash
 
-# Multi-Machine Setup Script for Machine 2 (Worker Host)
+# Generic Secondary Node Setup Script
+# Usage: ./start_secondarynode.sh --machine2
+#        ./start_secondarynode.sh --machine3
+#        etc.
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Parse arguments
+MACHINE_NAME=""
+for arg in "$@"; do
+    if [[ $arg == --machine* ]]; then
+        MACHINE_NAME="${arg#--}"
+        break
+    fi
+done
+
+if [ -z "$MACHINE_NAME" ]; then
+    echo "Error: Machine name not specified"
+    echo "Usage: $0 --machine2|--machine3|--machine4|..."
+    echo "Example: $0 --machine2"
+    exit 1
+fi
+
+# Extract machine number
+MACHINE_NUM=$(echo "$MACHINE_NAME" | grep -o '[0-9]\+')
+
 echo "=========================================="
-echo "  Machine 2 - Worker Host Setup"
+echo "  $MACHINE_NAME - Worker Host Setup"
 echo "=========================================="
 echo ""
 
@@ -13,12 +35,19 @@ echo ""
 echo "Detected IP addresses:"
 ip addr show | grep "inet " | grep -v "127.0.0.1" | awk '{print "  - " $2}'
 echo ""
-echo "Expected IP: 192.168.1.20"
+
+# Get expected IP from config
+EXPECTED_IP=$(grep -A 5 "\"$MACHINE_NAME\"" config.json | grep '"ip"' | cut -d'"' -f4)
+if [ -z "$EXPECTED_IP" ]; then
+    echo "⚠ Warning: $MACHINE_NAME not found in config.json"
+else
+    echo "Expected IP from config: $EXPECTED_IP"
+fi
 echo ""
 
-read -p "Is this Machine 2 (Worker Host)? (y/n): " confirm
+read -p "Is this $MACHINE_NAME (Worker Host)? (y/n): " confirm
 if [[ ! $confirm =~ ^[Yy]$ ]]; then
-    echo "Cancelled. Use start_machine1.sh on Machine 1."
+    echo "Cancelled."
     exit 1
 fi
 
@@ -57,7 +86,7 @@ fi
 echo ""
 echo "Checking if required port is free..."
 if lsof -ti:4001 >/dev/null 2>&1; then
-    echo "⚠ Port 4001 is in use. Run ./stop_all.sh first."
+    echo "⚠ Port 4001 is in use. Run ./stop_secondarynode.sh first."
     exit 1
 else
     echo "✓ Port 4001 is free"
@@ -79,7 +108,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "  Starting Components on Machine 2"
+echo "  Starting Components on $MACHINE_NAME"
 echo "=========================================="
 echo ""
 
@@ -88,17 +117,11 @@ open_tab() {
     local title="$1"
     local cmd="$2"
     
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS - use osascript
-        osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; $cmd\""
-    elif command -v gnome-terminal &> /dev/null; then
-        # Linux - gnome-terminal
+    if command -v gnome-terminal &> /dev/null; then
         gnome-terminal --tab --title="$title" -- bash -c "cd '$PROJECT_DIR'; $cmd; exec bash" &
     elif command -v xterm &> /dev/null; then
-        # Linux - xterm
         xterm -T "$title" -e "cd '$PROJECT_DIR'; $cmd; exec bash" &
     elif command -v konsole &> /dev/null; then
-        # Linux - konsole  
         konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; $cmd; exec bash\"" &
     else
         echo "No supported terminal found. Please run manually:"
@@ -126,28 +149,16 @@ echo "Opening additional terminals..."
 
 # Terminal 1: Network Control (Partition/Heal)
 echo "1. Opening Network Control terminal..."
-open_tab "Network Control" "python3 test/machine2_network_control.py"
+open_tab "Network - $MACHINE_NAME" "python3 test/secondary_network_control.py"
 sleep 1
 
 # Terminal 2: Worker Logs Monitor
 echo "2. Opening Worker Logs terminal..."
-open_tab "Worker Logs" "tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash"
+open_tab "Logs - $MACHINE_NAME" "tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash"
 
-echo ""
-echo "=========================================="
-echo "  Machine 2 Started Successfully!"
-echo "=========================================="
-echo ""
-echo "Services running:"
-echo "  - SpawnWorker (background, PID: $SPAWN_PID)"
-echo "  - Network Control (terminal)"
-echo "  - Worker Logs Monitor (terminal)"
 echo ""
 echo "Checking Machine 1 connectivity..."
-MACHINE1_IP=$(grep -A 5 '"localhost"' config.json | grep '"ip"' | cut -d'"' -f4)
-echo "Machine 1 IP from config: $MACHINE1_IP"
-
-if timeout 2 bash -c "cat < /dev/null > /dev/tcp/$MACHINE1_IP/3000" 2>/dev/null; then
+if timeout 2 bash -c "cat < /dev/null > /dev/tcp/$machine1_ip/3000" 2>/dev/null; then
     echo "✓ Machine 1 HashRing is REACHABLE"
 else
     echo "⚠ Machine 1 HashRing is NOT reachable yet"
@@ -155,28 +166,22 @@ else
 fi
 
 echo ""
-echo "After this:"
+echo "=========================================="
+echo "  $MACHINE_NAME Started Successfully!"
+echo "=========================================="
+echo ""
+echo "Services running:"
+echo "  - SpawnWorker (background, PID: $SPAWN_PID)"
+echo "  - Network Control (terminal)"
+echo "  - Worker Logs Monitor (terminal)"
+echo ""
+echo "Next steps:"
 echo "----------"
 echo "1. Go to Machine 1's Test Interface"
-echo ""
 echo "2. Select Option 2: Allocate nodes"
-echo "   → Enter: 2 (to allocate both machines)"
+echo "3. Enter the number of machines to allocate"
 echo ""
-echo "3. Workers will be spawned automatically on both machines"
-echo ""
-echo "4. You can monitor this machine's workers:"
-echo "   → ps aux | grep worker.py"
-echo "   → lsof -i :3200-3203"
-echo ""
-echo "5. To check connectivity anytime:"
-echo "   → ./check_connectivity.sh"
-echo ""
-echo "6. To stop Machine 2:"
-echo "   → ./stop_machine2.sh"
-echo ""
-echo "Configuration:"
-echo "  Machine 2 will host: 4 worker vnodes"
-echo "  Ports: 3200-3203 (assigned dynamically)"
-echo "  Redis: Port 6379"
+echo "To stop $MACHINE_NAME:"
+echo "  ./stop_secondarynode.sh"
 echo ""
 echo "=========================================="

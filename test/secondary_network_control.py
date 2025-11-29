@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Network Control Interface for Machine 2
+Generic Network Control Interface for Secondary Nodes (Machine 2, 3, 4, ...)
 Allows blocking/healing connections to Machine 1
 """
 
@@ -16,14 +16,26 @@ def get_machine1_ip():
     # Assume first node is Machine 1
     return nodes[0]['ip'], nodes[0]['hostname']
 
+def get_current_machine_info():
+    """Try to detect which machine we're on"""
+    import socket
+    hostname = socket.gethostname()
+    try:
+        local_ip = socket.gethostbyname(hostname)
+    except:
+        local_ip = "unknown"
+    return hostname, local_ip
+
 def block_machine1():
     """Block incoming/outgoing traffic to Machine 1"""
     machine1_ip, machine1_name = get_machine1_ip()
+    current_host, current_ip = get_current_machine_info()
     
     print(f"\n{'='*50}")
     print(f"BLOCK MACHINE 1")
     print(f"{'='*50}")
-    print(f"Machine 1: {machine1_name} ({machine1_ip})")
+    print(f"Current machine: {current_host} ({current_ip})")
+    print(f"Target: Machine 1 - {machine1_name} ({machine1_ip})")
     print(f"This will block all traffic between this machine and Machine 1")
     print(f"{'='*50}\n")
     
@@ -34,19 +46,18 @@ def block_machine1():
     
     print("\nBlocking traffic from Machine 1...")
     
-    # Get worker ports - we want to block Machine 2's own ports
-    # so Machine 1 cannot reach Machine 2's workers
+    # Get worker ports - block THIS machine's worker ports
     syntactic_start = config.get_port('syntactic_worker_start')
     semantic_start = config.get_port('semantic_worker_start')
     num_vnodes = config.get_quorum('N')
     
-    # Machine 2's worker ports (the ones running on THIS machine)
-    machine2_worker_ports = []
-    machine2_worker_ports.extend([syntactic_start + i for i in range(num_vnodes)])
-    machine2_worker_ports.extend([semantic_start + i for i in range(num_vnodes)])
+    # This machine's worker ports
+    worker_ports = []
+    worker_ports.extend([syntactic_start + i for i in range(num_vnodes)])
+    worker_ports.extend([semantic_start + i for i in range(num_vnodes)])
     
-    # Block Machine 1 from accessing Machine 2's workers
-    for port in machine2_worker_ports:
+    # Block Machine 1 from accessing this machine's workers
+    for port in worker_ports:
         # Block incoming connections from Machine 1 to THIS machine's workers
         cmd_in = f"sudo iptables -I INPUT 1 -s {machine1_ip} -p tcp --dport {port} -j DROP"
         subprocess.run(cmd_in, shell=True, stderr=subprocess.DEVNULL)
@@ -55,9 +66,10 @@ def block_machine1():
         cmd_out = f"sudo iptables -I OUTPUT 1 -d {machine1_ip} -p tcp --sport {port} -j DROP"
         subprocess.run(cmd_out, shell=True, stderr=subprocess.DEVNULL)
     
-    print(f"✅ Blocked Machine 1 ({machine1_ip}) from accessing Machine 2's workers")
-    print(f"\nBlocked {len(machine2_worker_ports)} worker ports on THIS machine")
-    print(f"Ports: {machine2_worker_ports[:8]}")  # Show first 8
+    print(f"✅ Blocked Machine 1 ({machine1_ip}) from accessing this machine's workers")
+    print(f"\nBlocked {len(worker_ports)} worker ports on THIS machine")
+    print(f"Syntactic ports: {[syntactic_start + i for i in range(num_vnodes)]}")
+    print(f"Semantic ports: {[semantic_start + i for i in range(num_vnodes)]}")
     print("\nTo verify:")
     print(f"  sudo iptables -L -n -v | grep {machine1_ip}")
     print("\nTo heal:")
@@ -93,10 +105,12 @@ def heal_network():
 def show_status():
     """Show current iptables rules"""
     machine1_ip, machine1_name = get_machine1_ip()
+    current_host, current_ip = get_current_machine_info()
     
     print(f"\n{'='*50}")
     print(f"NETWORK STATUS")
     print(f"{'='*50}")
+    print(f"Current machine: {current_host} ({current_ip})")
     print(f"Machine 1: {machine1_name} ({machine1_ip})")
     print(f"{'='*50}\n")
     
@@ -121,10 +135,12 @@ def show_status():
 def main():
     """Main menu loop"""
     machine1_ip, machine1_name = get_machine1_ip()
+    current_host, current_ip = get_current_machine_info()
     
     print(f"\n{'='*60}")
-    print(f"  MACHINE 2 - NETWORK CONTROL")
+    print(f"  SECONDARY NODE - NETWORK CONTROL")
     print(f"{'='*60}")
+    print(f"Current machine: {current_host} ({current_ip})")
     print(f"Machine 1: {machine1_name} ({machine1_ip})")
     print(f"{'='*60}\n")
     
