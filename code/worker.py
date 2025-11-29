@@ -1269,6 +1269,6 @@ class Worker(rpyc.Service):
 if __name__ == '__main__':
     port = int(sys.argv[1])
     redis_port = int(6379)
-    logging.debug (f"Listenting worker at {port}...")
+    logging.debug (f"Listenting worker at {port} on all interfaces (0.0.0.0)...")
     ThreadedServer(Worker(port, redis_port), hostname='0.0.0.0', port=port, protocol_config={'allow_public_attrs': True}).start()
     

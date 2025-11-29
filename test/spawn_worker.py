@@ -24,5 +24,5 @@ class SpawnWorkers(rpyc.Service):
  
 if __name__ == "__main__":
     port = config.get_port('spawn_worker')
-    logging.debug (f'Listening at port 4001...')
+    logging.debug (f'SpawnWorker listening on all interfaces (0.0.0.0) at port {port}...')
     ThreadedServer(SpawnWorkers(), hostname='0.0.0.0', port=port).start()

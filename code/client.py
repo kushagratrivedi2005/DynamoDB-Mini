@@ -414,4 +414,5 @@ if __name__ == '__main__':
     for node in nodes:
         node['port'] = worker_port
 
+    logging.debug(f"Client listening on all interfaces (0.0.0.0) at port {port}...")
     ThreadedServer(Client(nodes), hostname='0.0.0.0', port=port).start()

@@ -336,6 +336,6 @@ if __name__ == '__main__':
         node['port'] = workers_port
         
     HashRing_port:int = config.get_port('hash_ring')
-    logging.debug (f"Hashring started listening on port {HashRing_port}...")
+    logging.debug (f"Hashring started listening on all interfaces (0.0.0.0) at port {HashRing_port}...")
     ThreadedServer(HashRing(nodes_conf=nodes, spawn_whom=spawn_whom), hostname='0.0.0.0', port=HashRing_port).start()
 
