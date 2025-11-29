@@ -25,67 +25,93 @@ def test_spawn_wokers() -> None:
     count: int = int(input('Allocate how much nodes ? '))
     logging.debug(msg=f"Allocating {count} number of nodes on Hashring...")
     url: tuple = ('localhost', config.get_port('hash_ring'))
-    conn: rpyc.Connection = rpyc.connect(*url)
-    conn._config['sync_request_timeout'] = None 
-    res: dict = conn.root.allocate_nodes(count)
-    logging.debug(msg=res)
-    if res["status"] == -1:
-        logging.debug(msg=f"Reached maximum limit of resources : left {res['output']}")
-    
+    try:
+        # Allocating nodes takes longer because it spawns workers and builds the ring
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 60})
+        res: dict = conn.root.allocate_nodes(count)
+        logging.debug(msg=res)
+        if res["status"] == -1:
+            logging.debug(msg=f"Reached maximum limit of resources : left {res['output']}")
+    except Exception as e:
+        logging.error(f"Failed to allocate nodes: {e}")
+        return
+
+def _test_with_timeout(operation_name, func):
+    """Wrapper to handle timeouts for test operations"""
+    try:
+        return func()
+    except Exception as e:
+        if 'timed out' in str(e).lower() or 'timeout' in str(e).lower():
+            logging.error(f"\n{'='*50}")
+            logging.error(f"TIMEOUT: {operation_name} timed out!")
+            logging.error(f"This usually means:")
+            logging.error(f"1. Network partition is active (blocking traffic)")
+            logging.error(f"2. Workers are not responding")
+            logging.error(f"3. Quorum requirements cannot be met")
+            logging.error(f"{'='*50}\n")
+        else:
+            logging.error(f"{operation_name} failed: {e}")
+        return None
 
 def test_client_put(key: str, value: int) -> None:
-    url: tuple = ('localhost', config.get_port('client'))
-    conn: rpyc.Connection = rpyc.connect(*url)
-    logging.debug(msg=f"Syntactic put:: key: {key}")
-    conn._config['sync_request_timeout'] = None 
-    logging.debug(msg=f'PUT REQUEST: For {key} = {value}')
-    res: str = conn.root.put(key, value)
-    logging.debug(msg=f'PUT RESPONSE: {res}')
+    def _put():
+        url: tuple = ('localhost', config.get_port('client'))
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 10})
+        logging.debug(msg=f"Syntactic put:: key: {key}")
+        logging.debug(msg=f'PUT REQUEST: For {key} = {value}')
+        res: str = conn.root.put(key, value)
+        logging.debug(msg=f'PUT RESPONSE: {res}')
+        return res
+    _test_with_timeout('Syntactic PUT', _put)
 
 def test_client_get(key: str) -> None:
-    url: tuple = ('localhost', config.get_port('client'))
-    conn: rpyc.Connection = rpyc.connect(*url)
-    conn._config['sync_request_timeout'] = None 
-    logging.debug(msg=f'GET REQUEST : For {key}')
-    res: int = conn.root.get(key)
-    logging.debug(msg=f'GET REPONSE for key {key} = {res}')
-
+    def _get():
+        url: tuple = ('localhost', config.get_port('client'))
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 10})
+        logging.debug(msg=f'GET REQUEST : For {key}')
+        res: int = conn.root.get(key)
+        logging.debug(msg=f'GET REPONSE for key {key} = {res}')
+        return res
+    _test_with_timeout('Syntactic GET', _get)
+    
 
 def test_semantic_put(key: str) -> None:
-    select_item: str = 'y'
-    ''' talk to the client of semantic '''
-    url: tuple = ('localhost', config.get_port('client'))
-    conn: rpyc.Connection = rpyc.connect(*url)
-    logging.debug(msg=f"Semantic put:: key: {key}")
-    conn._config['sync_request_timeout'] = None 
-    print("Options: Add(+), Remove(-), Append(a)")
-    value: str = input('Select option: ')
-    
-    if value == '+':
-        res: str = conn.root.put(key, 1)
-        logging.debug(msg=f'PUT RESPONSE: {res}')
-    elif value == '-':
-        res: str = conn.root.put(key, -1)
-        logging.debug(f'PUT RESPONSE: {res}')
-    elif value == 'a':
-        val_to_append = input("Enter string to append: ")
-        # We need to implement exposed_append in client.py first
-        try:
-            res: str = conn.root.append(key, val_to_append)
-            logging.debug(f'APPEND RESPONSE: {res}')
-        except AttributeError:
-            logging.error("Append not implemented in client yet")
-    
-        # test_semantic_get(key=key)
+    def _semantic_put():
+        url: tuple = ('localhost', config.get_port('client'))
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 10})
+        logging.debug(msg=f"Semantic put:: key: {key}")
+        print("Options: Add(+), Remove(-), Append(a)")
+        value: str = input('Select option: ')
+        
+        if value == '+':
+            res: str = conn.root.put(key, 1)
+            logging.debug(msg=f'PUT RESPONSE: {res}')
+            return res
+        elif value == '-':
+            res: str = conn.root.put(key, -1)
+            logging.debug(f'PUT RESPONSE: {res}')
+            return res
+        elif value == 'a':
+            val_to_append = input("Enter string to append: ")
+            try:
+                res: str = conn.root.append(key, val_to_append)
+                logging.debug(f'APPEND RESPONSE: {res}')
+                return res
+            except AttributeError:
+                logging.error("Append not implemented in client yet")
+                return None
+    _test_with_timeout('Semantic PUT', _semantic_put)
         
 
 def test_semantic_get(key: str) -> None:
-    url: tuple = ('localhost', config.get_port('client'))
-    conn: rpyc.Connection = rpyc.connect(*url)
-    conn._config['sync_request_timeout'] = None 
-    logging.debug(msg=f'GET REQUEST : For {key}')
-    res: int = conn.root.get(key)
-    logging.debug(msg=f'GET REPONSE for key {key} = {res}')
+    def _get():
+        url: tuple = ('localhost', config.get_port('client'))
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 10})
+        logging.debug(msg=f'GET REQUEST : For {key}')
+        res: int = conn.root.get(key)
+        logging.debug(msg=f'GET REPONSE for key {key} = {res}')
+        return res
+    _test_with_timeout('Semantic GET', _get)
 
 def test_workers() -> None:
     url: tuple = ('localhost', config.get_port('hash_ring'))
@@ -139,6 +165,7 @@ while True:
             key: str = 'rqdgq'
             test_semantic_get(key)
         elif option == 7:
+            print("\n=== NETWORK PARTITION ===")
             print("Select target node:")
             print("1. Localhost")
             print("2. Other (Legacy)")
@@ -153,18 +180,78 @@ while True:
                 legacy_choice = int(input('Which node manav(1)/pratham(2): '))
                 target_ip = node1_ip if legacy_choice == 1 else node2_ip
 
-            task_type = int(input("Sematic(1) or Syntactic(2) "))
+            task_type = int(input("Semantic(1) or Syntactic(2): "))
             
-            # For localhost, we need to use the specific ports we defined in network_partition.py
+            # Load ports from config
+            semantic_start = config.get_port('semantic_worker_start')
+            syntactic_start = config.get_port('syntactic_worker_start')
+            num_vnodes = config.get_quorum('N')
+            
             if target_ip == '127.0.0.1':
-                 # Semantic: 3100-3103, Syntactic: 3200-3203
-                 ports = [3100, 3101, 3102, 3103] if task_type == 1 else [3200, 3201, 3202, 3203]
+                semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
+                syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
             else:
-                 ports = semantic_ports if task_type == 1 else syntactic_ports
+                semantic_vnodes = [3100, 3104, 3105]
+                syntactic_vnodes = [3000, 3004, 3005]
             
-            block_traffic(target_ip, ports)
+            all_vnodes = semantic_vnodes if task_type == 1 else syntactic_vnodes
             
+            # Port selection menu
+            print(f"\n=== Port Selection ===")
+            print(f"Available ports: {all_vnodes}")
+            print(f"\nQuorum settings: N={config.get_quorum('N')}, R={config.get_quorum('R')}, W={config.get_quorum('W')}")
+            print("\nChoose partition scenario:")
+            print("1. Block ALL ports (complete network partition)")
+            print(f"2. Block HALF (block {num_vnodes//2} vnodes)")
+            print("3. Block SPECIFIC ports (choose manually)")
+            print(f"4. Block {num_vnodes-1} vnodes (only 1 reachable - test W/R failure)")
+            
+            scenario = int(input('Select scenario: '))
+            
+            if scenario == 1:
+                vnodes = all_vnodes
+                print(f"Will block ALL {len(vnodes)} vnodes: {vnodes}")
+            elif scenario == 2:
+                half = len(all_vnodes) // 2
+                vnodes = all_vnodes[:half]
+                print(f"Will block HALF ({half} vnodes): {vnodes}")
+                print(f"Remaining reachable: {all_vnodes[half:]}")
+                print(f"Expected: WRITE (W={config.get_quorum('W')}) should {'SUCCEED' if len(all_vnodes[half:]) >= config.get_quorum('W') else 'FAIL'}")
+                print(f"Expected: READ (R={config.get_quorum('R')}) should {'SUCCEED' if len(all_vnodes[half:]) >= config.get_quorum('R') else 'FAIL'}")
+            elif scenario == 3:
+                print(f"\nEnter port numbers to block (comma-separated)")
+                print(f"Example: {all_vnodes[0]},{all_vnodes[1]}")
+                port_input = input("Ports to block: ")
+                vnodes = [int(p.strip()) for p in port_input.split(',')]
+                remaining = [p for p in all_vnodes if p not in vnodes]
+                print(f"Will block {len(vnodes)} vnodes: {vnodes}")
+                print(f"Remaining reachable: {remaining}")
+                print(f"Expected: WRITE (W={config.get_quorum('W')}) should {'SUCCEED' if len(remaining) >= config.get_quorum('W') else 'FAIL'}")
+                print(f"Expected: READ (R={config.get_quorum('R')}) should {'SUCCEED' if len(remaining) >= config.get_quorum('R') else 'FAIL'}")
+            elif scenario == 4:
+                vnodes = all_vnodes[:num_vnodes-1]
+                print(f"Will block {len(vnodes)} vnodes: {vnodes}")
+                print(f"Remaining reachable: {all_vnodes[num_vnodes-1:]}")
+                print(f"Expected: Both WRITE and READ should FAIL (only 1 vnode < W={config.get_quorum('W')}, R={config.get_quorum('R')})")
+            else:
+                print("Invalid scenario. Defaulting to block all.")
+                vnodes = all_vnodes
+            
+            print(f"\n{'='*50}")
+            print(f"Action: PARTITION")
+            print(f"Target IP: {target_ip}")
+            print(f"Ports to block: {vnodes}")
+            print(f"{'='*50}\n")
+            
+            confirm = input("Proceed? (y/n): ")
+            if confirm.lower() == 'y':
+                block_traffic(target_ip, vnodes)
+                print("\n✅ Partition applied! Try PUT/GET operations now.")
+            else:
+                print("Cancelled.")
+                
         elif option == 8:
+            print("\n=== HEAL NETWORK ===")
             print("Select target node:")
             print("1. Localhost")
             print("2. Other (Legacy)")
@@ -173,20 +260,39 @@ while True:
             if select_ip == 1:
                 target_ip = '127.0.0.1'
             else:
-                # Legacy options
                 node1_ip = '10.1.128.42'
                 node2_ip = '172.30.231.182'
                 legacy_choice = int(input('Which node manav(1)/pratham(2): '))
                 target_ip = node1_ip if legacy_choice == 1 else node2_ip
 
-            task_type = int(input("Sematic(1) or Syntactic(2) "))
+            task_type = int(input("Semantic(1) or Syntactic(2): "))
+            
+            # Load ports from config
+            semantic_start = config.get_port('semantic_worker_start')
+            syntactic_start = config.get_port('syntactic_worker_start')
+            num_vnodes = config.get_quorum('N')
             
             if target_ip == '127.0.0.1':
-                 ports = [3100, 3101, 3102, 3103] if task_type == 1 else [3200, 3201, 3202, 3203]
+                semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
+                syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
             else:
-                 ports = semantic_ports if task_type == 1 else syntactic_ports
-                 
-            heal_firewall(target_ip, ports)       
+                semantic_vnodes = [3100, 3104, 3105]
+                syntactic_vnodes = [3000, 3004, 3005]
+            
+            all_vnodes = semantic_vnodes if task_type == 1 else syntactic_vnodes
+            
+            print(f"\n{'='*50}")
+            print(f"Action: HEAL")
+            print(f"Target IP: {target_ip}")
+            print(f"Will restore ALL ports: {all_vnodes}")
+            print(f"{'='*50}\n")
+            
+            confirm = input("Proceed? (y/n): ")
+            if confirm.lower() == 'y':
+                heal_firewall(target_ip, all_vnodes)
+                print("\n✅ Network healed! All vnodes should be reachable now.")
+            else:
+                print("Cancelled.")       
         elif option == 9:
             url: tuple = ('localhost', 6001)
             conn: rpyc.Connection = rpyc.connect(*url)
