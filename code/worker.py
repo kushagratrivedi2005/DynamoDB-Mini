@@ -1078,6 +1078,15 @@ class Worker(rpyc.Service):
                         self.get_requests_log[request_id + '__NODE__'].append(node)
                 except Exception as e:
                     logging.debug ("Something bad happen in exposed_get ", e)
+            # Count reachable nodes
+            reachable_nodes = [node for node in replica_nodes if node in self.routing_table.keys()]
+            logging.debug(f"GET: Reachable nodes: {len(reachable_nodes)}, Required: {self.READ}")
+            
+            # Check if we have enough reachable nodes to meet READ quorum
+            if len(reachable_nodes) < self.READ:
+                logging.debug(f"GET FAILED: Not enough reachable nodes ({len(reachable_nodes)} < {self.READ})")
+                return {"status": self.FAILURE, "msg": f"Not enough nodes for read quorum (need {self.READ}, have {len(reachable_nodes)})"}
+            
             responses = []
             for node in replica_nodes:
                 if node in self.routing_table.keys():
@@ -1176,6 +1185,15 @@ class Worker(rpyc.Service):
             Try to send the async rpyc request to the replica node 
             So that they can have key, value stored.
             '''
+            # Count reachable replica nodes
+            reachable_replicas = [node for node, vc in replica_nodes.items() if node != self.end_of_range]
+            logging.debug(f"PUT: Reachable replicas: {len(reachable_replicas)}, Required WRITE quorum: {self.WRITE}")
+            
+            # Check if we have enough reachable nodes to meet WRITE quorum
+            if len(reachable_replicas) < self.WRITE:
+                logging.debug(f"PUT FAILED: Not enough reachable nodes ({len(reachable_replicas)} < {self.WRITE})")
+                return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {len(reachable_replicas)})"}
+            
             responses = []
             for node, vc in replica_nodes.items():
                 if node != self.end_of_range: #* End of range represent node hash
