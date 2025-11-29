@@ -3,6 +3,11 @@ import subprocess
 import platform
 import os
 
+import sys
+from os.path import dirname, abspath
+sys.path.append(dirname(dirname(abspath(__file__))))
+import utils.config as config
+
 logging.basicConfig(level=logging.DEBUG)
 
 def block_traffic(ip_address, port_set) -> None:
@@ -78,7 +83,7 @@ if __name__ == '__main__':
     logging.debug(f'2. Heal partition')
     try:
         which = int(input('Which option ? '))
-        print("Select target cluster:")
+        print("\nSelect target cluster:")
         print("1. Sourav (10.237.27.95)")
         print("2. BaadalVM (10.17.50.254)")
         print("3. Localhost (127.0.0.1)")
@@ -96,23 +101,72 @@ if __name__ == '__main__':
             print("Invalid node selection. Defaulting to Localhost.")
             ip = '127.0.0.1'
             
-        semantic_vnodes = [3100, 3104, 3105]
-        syntactic_vnodes = [3000, 3004, 3005]
+        # Load ports from config
+        semantic_start = config.get_port('semantic_worker_start')
+        syntactic_start = config.get_port('syntactic_worker_start')
+        num_vnodes = config.get_quorum('N')
         
-        # Override ports for Localhost to match HashRing.py defaults (4 vnodes)
-        if which_node == 3:
-            # Semantic: 3100, 3101, 3102, 3103
-            semantic_vnodes = [3100, 3101, 3102, 3103]
-            # Syntactic: 3200, 3201, 3202, 3203 (HashRing spawns at 3200 for syntactic)
-            syntactic_vnodes = [3200, 3201, 3202, 3203]
-            
-        vnodes = semantic_vnodes if which_task == 1 else syntactic_vnodes
+        if which_node == 3: # Localhost
+             # Generate ports based on config
+             semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
+             syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
+        else:
+             # Legacy/Remote nodes
+             semantic_vnodes = [3100, 3104, 3105]
+             syntactic_vnodes = [3000, 3004, 3005]
+        
+        all_vnodes = semantic_vnodes if which_task == 1 else syntactic_vnodes
+        
+        # Port selection menu
+        print(f"\n=== Port Selection ===")
+        print(f"Available ports: {all_vnodes}")
+        print("\nChoose partition scenario:")
+        print("1. Block ALL ports (complete network partition)")
+        print("2. Block HALF (simulate 50% nodes down)")
+        print("3. Block SPECIFIC ports (choose manually)")
+        
+        scenario = int(input('Select scenario: '))
+        
+        if scenario == 1:
+            # Block all ports
+            vnodes = all_vnodes
+            print(f"Will block ALL {len(vnodes)} vnodes: {vnodes}")
+        elif scenario == 2:
+            # Block half
+            half = len(all_vnodes) // 2
+            vnodes = all_vnodes[:half]
+            print(f"Will block HALF ({half} vnodes): {vnodes}")
+            print(f"Remaining reachable: {all_vnodes[half:]}")
+        elif scenario == 3:
+            # Manual selection
+            print(f"\nEnter port numbers to block (comma-separated)")
+            print(f"Example: {all_vnodes[0]},{all_vnodes[1]}")
+            port_input = input("Ports to block: ")
+            vnodes = [int(p.strip()) for p in port_input.split(',')]
+            remaining = [p for p in all_vnodes if p not in vnodes]
+            print(f"Will block {len(vnodes)} vnodes: {vnodes}")
+            print(f"Remaining reachable: {remaining}")
+        else:
+            print("Invalid scenario. Defaulting to block all.")
+            vnodes = all_vnodes
+        
+        # Summary
+        print(f"\n{'='*50}")
+        print(f"Action: {'PARTITION' if which == 1 else 'HEAL'}")
+        print(f"Target IP: {ip}")
+        print(f"Ports affected: {vnodes}")
+        print(f"{'='*50}\n")
+        
+        confirm = input("Proceed? (y/n): ")
+        if confirm.lower() != 'y':
+            print("Cancelled.")
+            exit(0)
         
         if which == 1:
             block_traffic(ip_address=ip, port_set=vnodes)
         elif which == 2:
             heal_firewall(ip_address=ip, port_set=vnodes)
     except ValueError:
-        print("Invalid input. Please enter numbers.")
+        logging.error(f'Invalid input!')
     except KeyboardInterrupt:
-        print("\nExiting...")
+        logging.error(f'\\nCancelled by user!')

@@ -6,6 +6,11 @@ import logging
 from random import choice, randint
 from network_partition import heal_firewall, block_traffic
 
+import sys
+from os.path import dirname, abspath
+sys.path.append(dirname(dirname(abspath(__file__))))
+import utils.config as config
+
 logging.basicConfig(level=logging.DEBUG)
 
 def get_random_string(length: int) -> str:
@@ -19,7 +24,7 @@ def test_hashring() -> None:
 def test_spawn_wokers() -> None:
     count: int = int(input('Allocate how much nodes ? '))
     logging.debug(msg=f"Allocating {count} number of nodes on Hashring...")
-    url: tuple = ('localhost', 3000)
+    url: tuple = ('localhost', config.get_port('hash_ring'))
     conn: rpyc.Connection = rpyc.connect(*url)
     conn._config['sync_request_timeout'] = None 
     res: dict = conn.root.allocate_nodes(count)
@@ -29,7 +34,7 @@ def test_spawn_wokers() -> None:
     
 
 def test_client_put(key: str, value: int) -> None:
-    url: tuple = ('localhost', 6001)
+    url: tuple = ('localhost', config.get_port('client'))
     conn: rpyc.Connection = rpyc.connect(*url)
     logging.debug(msg=f"Syntactic put:: key: {key}")
     conn._config['sync_request_timeout'] = None 
@@ -38,7 +43,7 @@ def test_client_put(key: str, value: int) -> None:
     logging.debug(msg=f'PUT RESPONSE: {res}')
 
 def test_client_get(key: str) -> None:
-    url: tuple = ('localhost', 6001)
+    url: tuple = ('localhost', config.get_port('client'))
     conn: rpyc.Connection = rpyc.connect(*url)
     conn._config['sync_request_timeout'] = None 
     logging.debug(msg=f'GET REQUEST : For {key}')
@@ -49,7 +54,7 @@ def test_client_get(key: str) -> None:
 def test_semantic_put(key: str) -> None:
     select_item: str = 'y'
     ''' talk to the client of semantic '''
-    url: tuple = ('localhost', 6001)
+    url: tuple = ('localhost', config.get_port('client'))
     conn: rpyc.Connection = rpyc.connect(*url)
     logging.debug(msg=f"Semantic put:: key: {key}")
     conn._config['sync_request_timeout'] = None 
@@ -75,7 +80,7 @@ def test_semantic_put(key: str) -> None:
         
 
 def test_semantic_get(key: str) -> None:
-    url: tuple = ('localhost', 6001)
+    url: tuple = ('localhost', config.get_port('client'))
     conn: rpyc.Connection = rpyc.connect(*url)
     conn._config['sync_request_timeout'] = None 
     logging.debug(msg=f'GET REQUEST : For {key}')
@@ -83,12 +88,17 @@ def test_semantic_get(key: str) -> None:
     logging.debug(msg=f'GET REPONSE for key {key} = {res}')
 
 def test_workers() -> None:
-    url: tuple = ('localhost', 3000)
+    url: tuple = ('localhost', config.get_port('hash_ring'))
     conn: rpyc.Connection = rpyc.connect(*url).root
     res: str = conn.get()
 
-semantic_ports = [3100, 3101]
-syntactic_ports = [3200, 3201]
+# Load ports from config
+semantic_start = config.get_port('semantic_worker_start')
+syntactic_start = config.get_port('syntactic_worker_start')
+# Assuming 4 vnodes as per config, but here we list them explicitly for partition testing
+# Or we can generate them. For now, let's generate a few.
+semantic_ports = [semantic_start + i for i in range(4)]
+syntactic_ports = [syntactic_start + i for i in range(4)]
 
 while True: 
     logging.debug (

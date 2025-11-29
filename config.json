@@ -1,0 +1,35 @@
+{
+    "ports": {
+        "hash_ring": 3000,
+        "spawn_worker": 4001,
+        "client": 6001,
+        "redis": 6379,
+        "semantic_worker_start": 3100,
+        "syntactic_worker_start": 3200
+    },
+    "nodes": [
+        {
+            "username": "default",
+            "hostname": "localhost",
+            "ip": "127.0.0.1",
+            "vnodes": 4
+        }
+    ],
+    "timeouts": {
+        "cache": 20,
+        "gossip": 5,
+        "ping_down_node": 30,
+        "replicate_sync": 5,
+        "replicated": 20
+    },
+    "quorum": {
+        "N": 4,
+        "R": 3,
+        "W": 2
+    },
+    "retries": {
+        "replica": 2,
+        "redis_write": 3,
+        "client": 3
+    }
+}

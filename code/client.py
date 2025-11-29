@@ -12,6 +12,11 @@ from bisect import bisect
 from datetime import timedelta, datetime
 from rpyc.utils.server import ThreadedServer
 
+import sys
+from os.path import dirname, abspath
+sys.path.append(dirname(dirname(abspath(__file__))))
+import utils.config as config
+
 logging.basicConfig(level=logging.DEBUG)
 
 class VectorClock:
@@ -38,9 +43,9 @@ class Client(rpyc.Service):
         self.locate_key = dict() #* key -> node_hash, 
         self.all_nodes = []#* node hash -> (vector clock(ip, port, ...), last_update_time)
         ''' Universal constant/configure by users'''
-        self.CACHE_TIMEOUT = 20
-        self.READ = 3
-        self.WRITE = 2
+        self.CACHE_TIMEOUT = config.get_timeout('cache')
+        self.READ = config.get_quorum('R')
+        self.WRITE = config.get_quorum('W')
         self.HINTED_REPLICA_COUNT = 2
         self.RETRIES = 3 # can be replaced with log(nodes) in system
         ''' Some constants for return messages'''
@@ -389,18 +394,24 @@ class Client(rpyc.Service):
         pass
 
 if __name__ == '__main__':
-    port = 6001
-    #TODO: Later move these to some service provided by Hashring or some 
-    #TODO: complete independent service also ok.
+    port = config.get_port('client')
+    logging.debug (f'Client is listening at port {port}...')
+    
+    # Prompt user for which worker type to connect to
+    print("Which worker type are you connecting to?")
+    print("1. Semantic (for general key-value operations)")
+    print("2. Syntactic (for username/password operations)")
+    worker_choice = int(input("Enter choice (1/2): "))
+    
+    if worker_choice == 1:
+        worker_port = config.get_port('semantic_worker_start')
+        print(f"Connecting to Semantic workers starting at port {worker_port}")
+    else:
+        worker_port = config.get_port('syntactic_worker_start')
+        print(f"Connecting to Syntactic workers starting at port {worker_port}")
+    
+    nodes = config.get_nodes()
+    for node in nodes:
+        node['port'] = worker_port
 
-    # Contain the IP adress + port of server that we want to connect to & no. of virtual nodes
-    nodes = [
-        {
-            'username': 'default',
-            'ip': 'localhost',
-            'port': 3100,
-            'vnodes': 4
-        },
-    ]
-    print (f"Client is listening at port = {port}...")
     ThreadedServer(Client(nodes), hostname='0.0.0.0', port=port).start()

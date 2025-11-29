@@ -16,6 +16,11 @@ from os.path import join, dirname
 from rpyc.utils.server import ThreadedServer
 from typing import List, Set, Dict, Tuple, Callable, Iterator, Union, Optional, Any, Counter
 
+import sys
+from os.path import dirname, abspath
+sys.path.append(dirname(dirname(abspath(__file__))))
+import utils.config as config
+
 logging.basicConfig(level=logging.DEBUG)
 
 '''
@@ -39,10 +44,10 @@ class HashRing(rpyc.Service):
         self.resources: List[Dict[str, Any]] = nodes_conf 
         self.spawn_whom: str = spawn_whom
         ''' Defining constants '''
-        self.N = 4
+        self.N = config.get_quorum('N')
         self.sleep_time = 10
         self.default_vnodes: int = 2
-        self.SPAWN_WORKER_PORT = 4001
+        self.SPAWN_WORKER_PORT = config.get_port('spawn_worker')
 
     def give_hash(self, key: str) -> str:
         return str(object=self.hash_function(key))
@@ -157,7 +162,9 @@ class HashRing(rpyc.Service):
             conn.root.spawn_worker(port=node_conf["port"], vnodes=node_conf["vnodes"], spawn_whom=self.spawn_whom)
         
         print(go_to_ring)
-        time.sleep(self.sleep_time) 
+        logging.debug("Waiting for workers to start their rpyc servers...")
+        time.sleep(15)  # Increased from 10 to give workers more time to start
+        logging.debug("Proceeding to connect to workers...") 
 
         for vnode_hash, vnode_info in go_to_ring.items():
             # right and left are considered assuming clockwise movement
@@ -190,8 +197,25 @@ class HashRing(rpyc.Service):
             logging.debug (f" New: [{int(new_added['start_of_range']) % 10000}, {int(new_added['end_of_range']) % 10000 }, ip:port({new_added['ip']}, {new_added['port']})]")
             self_url:tuple[Any, Any] = (hostname, port)
             try:
-                conn = rpyc.connect(*self_url) 
-                conn._config['sync_request_timeout'] = None 
+                # Retry connection with timeout
+                conn = None
+                max_retries = 5
+                for attempt in range(max_retries):
+                    try:
+                        logging.debug(f"Attempting to connect to worker at {self_url} (attempt {attempt + 1}/{max_retries})")
+                        conn = rpyc.connect(*self_url, config={'sync_request_timeout': 30})
+                        conn._config['sync_request_timeout'] = None
+                        logging.debug(f"Successfully connected to worker at {self_url}")
+                        break
+                    except Exception as e:
+                        if attempt < max_retries - 1:
+                            logging.debug(f"Connection attempt {attempt + 1} failed: {e}. Retrying in 2 seconds...")
+                            time.sleep(2)
+                        else:
+                            raise e
+                
+                if conn is None:
+                    raise Exception(f"Failed to connect to worker at {self_url} after {max_retries} attempts") 
                 primary, replica_nodes = -1, list()
                 if only_single_node == False:
                     primary = self.ring[right_node_hash]
@@ -298,17 +322,20 @@ if __name__ == '__main__':
     if (worker_type != 1) and (worker_type != 2):
         raise ValueError('Invalid argument provided, please provide 1 or 2')
     spawn_whom:str = types_of_workers[worker_type - 1]
-    workers_port:int = 3100 if spawn_whom == 'semantic' else 3200
+    
+    if spawn_whom == 'semantic':
+        workers_port = config.get_port('semantic_worker_start')
+    else:
+        workers_port = config.get_port('syntactic_worker_start')
+        
     logging.debug (f"Workers will be spawn for {spawn_whom}\nWorker port: {workers_port}")
-    nodes: List[Dict[str, Any]] = [
-        {
-            'username': 'default',
-            'hostname': 'localhost',
-            'port': workers_port,
-            'vnodes': 4
-        },
-    ]
-    HashRing_port:int = 3000
+    
+    # Load nodes from config and update port
+    nodes = config.get_nodes()
+    for node in nodes:
+        node['port'] = workers_port
+        
+    HashRing_port:int = config.get_port('hash_ring')
     logging.debug (f"Hashring started listening on port {HashRing_port}...")
     ThreadedServer(HashRing(nodes_conf=nodes, spawn_whom=spawn_whom), hostname='0.0.0.0', port=HashRing_port).start()
 

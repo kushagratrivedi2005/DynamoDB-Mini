@@ -21,6 +21,11 @@ from typing import List, Set, Dict, Tuple, Callable, Iterator, Union, Optional, 
 
 # from visualization import RingVisualization
  
+import sys
+from os.path import dirname, abspath
+sys.path.append(dirname(dirname(abspath(__file__))))
+import utils.config as config
+
 logging.basicConfig(level=logging.DEBUG)
 
 '''
@@ -57,18 +62,20 @@ class Worker(rpyc.Service):
         self.FAILURE:int = -1  
         self.SUCCESS:int = 0  
         self.IGNORE:int = 1
+        ''' Constants '''
         self.EXPIRE:int = 3
         self.INVALID_RESOURCE = 4
-        self.GOSSIP_INTERVAL:int = 5
-        self.PING_DOWN_NODE_INTERVAL:int = 30
-        self.REPLICATE_SYNC_TIMEOUT:int = 5
-        self.REPLICATED_TIMEOUT:int = 20
+        self.GOSSIP_INTERVAL:int = config.get_timeout('gossip')
+        self.PING_DOWN_NODE_INTERVAL:int = config.get_timeout('ping_down_node')
+        self.REPLICATE_SYNC_TIMEOUT:int = config.get_timeout('replicate_sync')
+        self.REPLICATED_TIMEOUT:int = config.get_timeout('replicated')
         self.REPLICA_RETRY = 2
-        self.READ:int = 2 # Take it as config from client
-        self.WRITE:int = 1 # Take it as config from client
+        self.READ:int = config.get_quorum('R') # Take it as config from client
+        self.WRITE:int = config.get_quorum('W') # Take it as config from client
+        self.N:int = config.get_quorum('N')
         self.REDIS_WRITE_RETRY:int = 3 # to retry on watch error
         self.REDIS_PORT:int = redis_port 
-        self.N = self.READ + self.WRITE# set it properly
+        # self.N = self.READ + self.WRITE# set it properly # This line is now redundant if N is directly from config
         self.hashmap = f'hash-map-{port}'
         self.sorted_set = f'sorted-set-{port}' # this is over the keys of hashmap so that efficient search can be made O(logN + m)
         self.FORMAT = "%Y-%m-%d %H:%M:%S"
