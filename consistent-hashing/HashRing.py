@@ -49,29 +49,66 @@ class HashRing(rpyc.Service):
 
     def initialize_worker(self, conf) -> None:        
         mydir: str = os.path.dirname(os.path.realpath(filename=__file__))
-        s = pxssh.pxssh()    
-        dotevn_path: str = join(dirname(p=__file__), '.env')
-        load_dotenv(dotevn_path)
         username, hostname = conf['username'], conf['hostname']
-        env_key: str = "_".join([username.upper(), "_".join(hostname.split('.'))])
-        logging.debug (env_key)
-        password: str | None = os.environ.get(env_key)
-        logging.debug (hostname, username, password)
-        uri: str = f"{username}@{hostname}"
-        s.login(server=hostname, username=username, password=password, sync_multiplier=5, auto_prompt_reset=False)
-        s.prompt()
-        s.sendline(s=f'mkdir -p Dynamo')
-        s.prompt()
-        sp.run(args=['scp', 'spawn_worker.py', 'worker.py', f'{uri}:~/Dynamo/']).check_returncode()
-        s.sendline(f'redis-cli SHUTDOWN')
-        s.prompt()
-        s.sendline('nohup redis-server &')
-        s.prompt()
-        s.sendline(f'redis-cli flushall')
-        s.prompt()
-        s.sendline('cd Dynamo && python3 spawn_worker.py')
-        logging.debug (s.before)
-        s.prompt()
+        
+        # Check if running locally
+        is_local = hostname in ['localhost', '127.0.0.1', '::1']
+        
+        if is_local:
+            logging.debug(f"Initializing worker locally for {hostname}")
+            try:
+                # Ensure Dynamo directory exists
+                dynamo_dir = os.path.expanduser("~/Dynamo")
+                os.makedirs(dynamo_dir, exist_ok=True)
+                
+                # Copy files locally
+                import shutil
+                shutil.copy('spawn_worker.py', dynamo_dir)
+                shutil.copy('code/worker.py', dynamo_dir) # Adjusted path assuming running from root
+                
+                # Restart Redis (optional/safe to skip if managed by run_local.py, but keeping logic similar)
+                # For local run, we might not want to kill the main redis if it's shared, 
+                # but following original logic:
+                # sp.run(['redis-cli', 'flushall']) 
+                
+                # Start spawn_worker
+                # In local setup, we usually start this manually or via run_local.py
+                # But if HashRing is supposed to start it:
+                # cmd = f"cd {dynamo_dir} && python3 spawn_worker.py &"
+                # sp.Popen(cmd, shell=True)
+                logging.debug("Local setup files copied. Please ensure spawn_worker.py is running.")
+                
+            except Exception as e:
+                logging.error(f"Error in local initialization: {e}")
+                
+        else:
+            # Remote setup using pxssh
+            try:
+                s = pxssh.pxssh()    
+                dotevn_path: str = join(dirname(p=__file__), '.env')
+                load_dotenv(dotevn_path)
+                
+                env_key: str = "_".join([username.upper(), "_".join(hostname.split('.'))])
+                logging.debug (env_key)
+                password: str | None = os.environ.get(env_key)
+                logging.debug (hostname, username, password)
+                uri: str = f"{username}@{hostname}"
+                s.login(server=hostname, username=username, password=password, sync_multiplier=5, auto_prompt_reset=False)
+                s.prompt()
+                s.sendline(s=f'mkdir -p Dynamo')
+                s.prompt()
+                sp.run(args=['scp', 'spawn_worker.py', 'worker.py', f'{uri}:~/Dynamo/']).check_returncode()
+                s.sendline(f'redis-cli SHUTDOWN')
+                s.prompt()
+                s.sendline('nohup redis-server &')
+                s.prompt()
+                s.sendline(f'redis-cli flushall')
+                s.prompt()
+                s.sendline('cd Dynamo && python3 spawn_worker.py')
+                logging.debug (s.before)
+                s.prompt()
+            except Exception as e:
+                logging.error(f"Failed to initialize remote worker {hostname}: {e}")
         
     def make_setup_ready(self) -> None:
         for conf in self.resources:
@@ -264,24 +301,12 @@ if __name__ == '__main__':
     workers_port:int = 3100 if spawn_whom == 'semantic' else 3200
     logging.debug (f"Workers will be spawn for {spawn_whom}\nWorker port: {workers_port}")
     nodes: List[Dict[str, Any]] = [
-        # {
-        #     'username': 'manav',
-        #     'hostname': '10.1.128.42',
-        #     'port': workers_port,
-        #     'vnodes': 2
-        # },
         {
-            'username': 'pratham',
+            'username': 'default',
             'hostname': 'localhost',
             'port': workers_port,
             'vnodes': 4
         },
-        # {
-        #     'username': 'baadalvm',
-        #     'hostname': '10.17.50.254',
-        #     'port': workers_port,
-        #     'vnodes': 6
-        # }
     ]
     HashRing_port:int = 3000
     logging.debug (f"Hashring started listening on port {HashRing_port}...")

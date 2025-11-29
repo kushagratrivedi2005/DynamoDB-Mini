@@ -53,13 +53,24 @@ def test_semantic_put(key: str) -> None:
     conn: rpyc.Connection = rpyc.connect(*url)
     logging.debug(msg=f"Semantic put:: key: {key}")
     conn._config['sync_request_timeout'] = None 
-    value: str = input('Add/Remove (+/-)')
+    print("Options: Add(+), Remove(-), Append(a)")
+    value: str = input('Select option: ')
+    
     if value == '+':
         res: str = conn.root.put(key, 1)
         logging.debug(msg=f'PUT RESPONSE: {res}')
     elif value == '-':
         res: str = conn.root.put(key, -1)
         logging.debug(f'PUT RESPONSE: {res}')
+    elif value == 'a':
+        val_to_append = input("Enter string to append: ")
+        # We need to implement exposed_append in client.py first
+        try:
+            res: str = conn.root.append(key, val_to_append)
+            logging.debug(f'APPEND RESPONSE: {res}')
+        except AttributeError:
+            logging.error("Append not implemented in client yet")
+    
         # test_semantic_get(key=key)
         
 
@@ -104,7 +115,7 @@ while True:
         elif option == 3:
             key: str = input("provide key: ") #get_random_string(5)
             logging.debug (f'Key is {key}')
-            value: int = int(input("provide value: "))
+            value: str = input("provide value: ")
             test_client_put(key, value)
         elif option == 4:
             key: str = input("provide key: ") #get_random_string(5)
@@ -118,21 +129,54 @@ while True:
             key: str = 'rqdgq'
             test_semantic_get(key)
         elif option == 7:
-            node1_ip = '10.1.128.42'
-            node2_ip = '172.30.231.182'
-            select_ip = int(input('Which node manav(1)/pratham(2): '))
+            print("Select target node:")
+            print("1. Localhost")
+            print("2. Other (Legacy)")
+            select_ip = int(input('Which node? '))
+            
+            if select_ip == 1:
+                target_ip = '127.0.0.1'
+            else:
+                # Legacy options
+                node1_ip = '10.1.128.42'
+                node2_ip = '172.30.231.182'
+                legacy_choice = int(input('Which node manav(1)/pratham(2): '))
+                target_ip = node1_ip if legacy_choice == 1 else node2_ip
+
             task_type = int(input("Sematic(1) or Syntactic(2) "))
-            ports = semantic_ports if task_type == 1 else syntactic_ports
-            select_ip = node1_ip if select_ip == 1 else node2_ip
-            block_traffic(select_ip, ports)
+            
+            # For localhost, we need to use the specific ports we defined in network_partition.py
+            if target_ip == '127.0.0.1':
+                 # Semantic: 3100-3103, Syntactic: 3200-3203
+                 ports = [3100, 3101, 3102, 3103] if task_type == 1 else [3200, 3201, 3202, 3203]
+            else:
+                 ports = semantic_ports if task_type == 1 else syntactic_ports
+            
+            block_traffic(target_ip, ports)
+            
         elif option == 8:
-            node1_ip = '10.1.128.42'
-            node2_ip = '172.30.231.182'
-            select_ip = int(input('Which node manav(1)/pratham(2): '))
-            select_ip = node1_ip if select_ip == 1 else node2_ip
+            print("Select target node:")
+            print("1. Localhost")
+            print("2. Other (Legacy)")
+            select_ip = int(input('Which node? '))
+            
+            if select_ip == 1:
+                target_ip = '127.0.0.1'
+            else:
+                # Legacy options
+                node1_ip = '10.1.128.42'
+                node2_ip = '172.30.231.182'
+                legacy_choice = int(input('Which node manav(1)/pratham(2): '))
+                target_ip = node1_ip if legacy_choice == 1 else node2_ip
+
             task_type = int(input("Sematic(1) or Syntactic(2) "))
-            ports = semantic_ports if task_type == 1 else syntactic_ports
-            heal_firewall(select_ip, ports)       
+            
+            if target_ip == '127.0.0.1':
+                 ports = [3100, 3101, 3102, 3103] if task_type == 1 else [3200, 3201, 3202, 3203]
+            else:
+                 ports = semantic_ports if task_type == 1 else syntactic_ports
+                 
+            heal_firewall(target_ip, ports)       
         elif option == 9:
             url: tuple = ('localhost', 6001)
             conn: rpyc.Connection = rpyc.connect(*url)

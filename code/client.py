@@ -349,6 +349,43 @@ class Client(rpyc.Service):
                 self.update_cache(key, res["replica_nodes"], res["controller_node"])
         return {"status": self.FAILURE, "msg": "Fail in PUT!"}
 
+    def exposed_append(self, key, value):
+        print (f"APPEND IS CALLED: {key}, {value}")
+        retry_count:int = 0
+        while retry_count < self.RETRIES:
+            controller_node, key_contained_by = self.get_key_containing_nodes(key)
+            print (f"Retrying ... {retry_count + 1}" )
+            retry_count += 1
+            break_reason = ''
+            res = None
+            for node in key_contained_by:
+                try:
+                    vc = self.cache[node]["vector_clock"] 
+                    url = (vc.ip, vc.port) 
+                    print (f"URL = {url}")
+
+                    conn = rpyc.connect(*url)
+                    conn._config['sync_request_timeout'] = None
+                    # Call exposed_append on the worker
+                    if hasattr(conn.root, 'exposed_append'):
+                        res = conn.root.exposed_append(key, value)
+                        print (f"Response : {res['status']}")
+                        if res["status"] == self.SUCCESS: 
+                            print (f"Append successfully: {res['msg']}")
+                            return {"status": self.SUCCESS, "value": res['msg']}
+                        elif res["status"] == self.INVALID_RESOURCE: 
+                            break_reason = self.INVALID_RESOURCE
+                    else:
+                        print("Worker does not support append")
+                        return {"status": self.FAILURE, "msg": "Worker does not support append"}
+                        
+                except Exception as e:
+                    print ("Expection in client append", e)
+                    pass 
+            if break_reason == self.INVALID_RESOURCE: 
+                self.update_cache(key, res["replica_nodes"], res["controller_node"])
+        return {"status": self.FAILURE, "msg": "Fail in APPEND!"}
+
         pass
 
 if __name__ == '__main__':
@@ -358,24 +395,12 @@ if __name__ == '__main__':
 
     # Contain the IP adress + port of server that we want to connect to & no. of virtual nodes
     nodes = [
-        # {
-        #     'username': 'manav',
-        #     'ip': '10.1.128.42',
-        #     'port': 3200,
-        #     'vnodes': 2
-        # },
         {
-            'username': 'pratham',
+            'username': 'default',
             'ip': 'localhost',
             'port': 3100,
             'vnodes': 4
         },
-        # {
-        #     'username': 'baadalvm',
-        #     'ip': '10.17.50.254',
-        #     'port': 3000,
-        #     'vnodes': 4
-        # }
     ]
     print (f"Client is listening at port = {port}...")
     ThreadedServer(Client(nodes), hostname='0.0.0.0', port=port).start()

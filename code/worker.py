@@ -881,27 +881,32 @@ class Worker(rpyc.Service):
     def wait_for_responses(self, responses, required, reqType:str=""):
         logging.debug ("Waiting for responses...")
         while True:
+            time.sleep(0.2) # Prevent busy wait
             count_success_responses = 0
             count_error_responses = 0
-            try:
-                logging.debug (f'{reqType}::: Success: {count_success_responses}, Error = {count_error_responses}')
-                for response in responses:
-                    if response.ready:
+            
+            # Check each response
+            for response in responses:
+                if response.ready:
+                    try:
                         res = response.value
                         if res['status'] == self.SUCCESS:
                             count_success_responses += 1 
                         else:
                             count_error_responses += 1
-                    # else:
-                        # logging.debug ("not ready!", response.ready)
-                if count_success_responses >= required:
-                    logging.debug ("Done with waiting for reponses: success")
-                    return {"status": self.SUCCESS} 
-                if count_error_responses > self.N - required:
-                    logging.debug ("Done with waiting for reponses: failure")
-                    return {"status": self.FAILURE}
-            except Exception as e:
-                logging.debug (f"{reqType} :: Something bad happen ", e)
+                    except Exception as e:
+                        # If accessing value fails (e.g. timeout), count as error
+                        # logging.debug(f"Error getting response value: {e}")
+                        count_error_responses += 1
+            
+            logging.debug (f'{reqType}::: Success: {count_success_responses}, Error = {count_error_responses}')
+
+            if count_success_responses >= required:
+                logging.debug ("Done with waiting for reponses: success")
+                return {"status": self.SUCCESS} 
+            if count_error_responses > self.N - required:
+                logging.debug ("Done with waiting for reponses: failure")
+                return {"status": self.FAILURE}
                 
 
     def replicate(self):
@@ -1169,24 +1174,76 @@ class Worker(rpyc.Service):
                 we are free to repsonse to the client for their write
                 and our background thread will try to make it to write to N replicas
             '''
+            '''
+                Now wait for the W to finish the writes and once they are done
+                we are free to repsonse to the client for their write
+                and our background thread will try to make it to write to N replicas
+            '''
             # time.sleep(5) # this will be replced by wait
-            waiting = self.wait_for_responses(responses, self.WRITE, 'PUT') 
-            print(" Lst line ")
-            print(waiting['status'])
-            if waiting['status'] == self.SUCCESS:
-                print("Success")
-                return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1} 
-            else: 
-                print("failure ,,,,,,")
-
-                return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
+            if len(responses) > 0:
+                waiting = self.wait_for_responses(responses, min(self.WRITE, len(responses)), 'PUT') 
+                print(" Lst line ")
+                print(waiting['status'])
+                if waiting['status'] == self.SUCCESS:
+                    print("Success")
+                    return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1} 
+                else: 
+                    print("failure ,,,,,,")
+                    return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
+            else:
+                # No replicas to wait for, but primary write was successful
+                print("Success (No replicas)")
+                return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1}
 
         else:
             #* Return the node which should contain this key, if I'm not the controller
             #* of that key any more/ or was never.
             return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
 
+    def exposed_append(self, key, value):
+        logging.debug (f"APPEND REQUEST: key = {key}, value = {value}")
+        request_id, timestamp = self.make_request_id(key)
+        key_hash = str(self.hash_function(key))
+        start, end = self.start_of_range, self.end_of_range 
+        replica_nodes, controller_node = self.exposed_fetch_routing_info(key=key, need_serialized=False)
 
+        if ((start > end and (key_hash >= start or key_hash <= end)) or (start <= key_hash and key_hash < end)):    
+            logging.debug ("OK, Correct node (controller) to append")
+            
+            with self.rds.pipeline() as pipe:
+                pipe.watch(self.hashmap)
+                pipe.multi()
+                while True:
+                    try:
+                        # Read current value
+                        current_val = self.rds.hget(self.hashmap, key)
+                        if current_val is None:
+                            new_val = value
+                        else:
+                            new_val = str(current_val) + str(value)
+                            
+                        pipe.hset(self.hashmap, key, new_val)
+                        pipe.zadd(self.sorted_set, {key_hash: 1})
+                        pipe.set(key, timestamp)
+                        pipe.set(key_hash, key)
+                        pipe.execute()
+                        break 
+                    except redis.WatchError as e:
+                        logging.debug ("Watch error in append: ", e)
+                        continue
+            
+            logging.debug (f"Appended {value} to {key}")
+            
+            # For simplicity, we are not implementing full replication for append in this step
+            # as it requires updating the bulk_put/replicate logic to handle operations.
+            # We will just return success for the primary write.
+            # In a real system, we'd propagate the operation or the new value.
+            # Here we'll treat it as a successful write on primary.
+            
+            return {"status": self.SUCCESS, "msg": f"Successfully appended to {key}", "version_number": -1} 
+        
+        else:
+            return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
 
 if __name__ == '__main__':
     port = int(sys.argv[1])
