@@ -153,11 +153,12 @@ class HashRing(rpyc.Service):
         for node_conf in nodes_conf:
             hostname = node_conf['hostname']
             port = node_conf['port']
+            ip = node_conf['ip']
             for who in range(0, int(node_conf["vnodes"])):
-                go_to_ring[self.give_hash(f'{hostname}_{who}')] = (hostname, port + who, who)
+                go_to_ring[self.give_hash(f'{hostname}_{who}')] = (ip, port + who, who)
             
-            print(f"We are here & url to connnect is: {hostname}, {self.SPAWN_WORKER_PORT}")
-            conn = rpyc.connect(hostname, self.SPAWN_WORKER_PORT)
+            print(f"We are here & url to connnect is: {ip}, {self.SPAWN_WORKER_PORT}")
+            conn = rpyc.connect(ip, self.SPAWN_WORKER_PORT)
             conn._config['sync_request_timeout'] = None 
             conn.root.spawn_worker(port=node_conf["port"], vnodes=node_conf["vnodes"], spawn_whom=self.spawn_whom)
         
