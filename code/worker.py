@@ -63,7 +63,7 @@ class Worker(rpyc.Service):
         self.SUCCESS:int = 0  
         self.IGNORE:int = 1
         ''' Constants '''
-        self.EXPIRE:int = 3
+        self.EXPIRE:int = 30
         self.INVALID_RESOURCE = 4
         self.GOSSIP_INTERVAL:int = config.get_timeout('gossip')
         self.PING_DOWN_NODE_INTERVAL:int = config.get_timeout('ping_down_node')
@@ -493,11 +493,11 @@ class Worker(rpyc.Service):
                 ip, port = vc.ip, int(vc.port)
                 response = self.ping(ip, port)  
                 if response == False:
-                    logging.debug ("REMOVING FROM ACTIVE ", node)
+                    logging.debug("REMOVING FROM ACTIVE: %s", node)
                     self.lock_routing_table.acquire()
                     del self.routing_table[str(node)]
                     self.lock_routing_table.release()
-                    logging.debug ("ADDING TO ACTIVE ", node)
+                    logging.debug("ADDING TO ACTIVE: %s", node)
                     self.lock_down_routing_table.acquire()
                     # vc.version_number += 1
                     self.down_routing_table[str(node)] = vc
@@ -561,7 +561,7 @@ class Worker(rpyc.Service):
                             self.down_routing_table[node] = vc 
                     #* ping the nodes.
                 except Exception as e: 
-                    logging.debug ("Some thing bad happen while chit chat..", e)
+                    logging.debug("Some thing bad happen while chit chat: %s", e)
                     ask_guest_to_ping.append(nodes[idx])
 
                 ''' To all those whom I was not able to connect during chit-chat'''
@@ -890,6 +890,9 @@ class Worker(rpyc.Service):
 
     def wait_for_responses(self, responses, required, reqType:str=""):
         logging.debug ("Waiting for responses...")
+        max_wait_time = 25  # Maximum 25 seconds wait
+        start_time = time.time()
+        
         while True:
             time.sleep(0.2) # Prevent busy wait
             count_success_responses = 0
@@ -917,6 +920,14 @@ class Worker(rpyc.Service):
             if count_error_responses > self.N - required:
                 logging.debug ("Done with waiting for reponses: failure")
                 return {"status": self.FAILURE}
+            
+            # Timeout check
+            if time.time() - start_time > max_wait_time:
+                logging.debug(f"Timeout after {max_wait_time}s: Success={count_success_responses}, Required={required}")
+                if count_success_responses >= required:
+                    return {"status": self.SUCCESS}
+                else:
+                    return {"status": self.FAILURE}
                 
 
     def replicate(self):

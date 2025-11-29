@@ -16,11 +16,11 @@
         }
     ],
     "timeouts": {
-        "cache": 20,
-        "gossip": 5,
+        "cache": 30,
+        "gossip": 10,
         "ping_down_node": 30,
-        "replicate_sync": 5,
-        "replicated": 20
+        "replicate_sync": 10,
+        "replicated": 30
     },
     "quorum": {
         "N": 4,
@@ -30,6 +30,6 @@
     "retries": {
         "replica": 2,
         "redis_write": 3,
-        "client": 3
+        "client": 5
     }
 }

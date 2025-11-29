@@ -57,7 +57,7 @@ def test_client_put(key: str, value: int) -> None:
     def _put():
         url: tuple = ('localhost', config.get_port('client'))
         # Long timeout needed: TCP connection to blocked ports takes ~10-15s to timeout on macOS
-        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 3})
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 60})
         logging.debug(msg=f"Syntactic put:: key: {key}")
         logging.debug(msg=f'PUT REQUEST: For {key} = {value}')
         res: str = conn.root.put(key, value)
@@ -68,7 +68,7 @@ def test_client_put(key: str, value: int) -> None:
 def test_client_get(key: str) -> None:
     def _get():
         url: tuple = ('localhost', config.get_port('client'))
-        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 3})
+        conn: rpyc.Connection = rpyc.connect(*url, config={'sync_request_timeout': 60})
         logging.debug(msg=f'GET REQUEST : For {key}')
         res: int = conn.root.get(key)
         logging.debug(msg=f'GET REPONSE for key {key} = {res}')
