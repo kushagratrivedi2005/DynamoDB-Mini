@@ -83,24 +83,27 @@ echo "  Starting Components on Machine 2"
 echo "=========================================="
 echo ""
 
+# Function to open terminal
+open_tab() {
+    local title="$1"
+    local cmd="$2"
+    
+    if command -v gnome-terminal &> /dev/null; then
+        gnome-terminal --tab --title="$title" -- bash -c "cd '$PROJECT_DIR'; $cmd; exec bash" &
+    elif command -v xterm &> /dev/null; then
+        xterm -T "$title" -e "cd '$PROJECT_DIR'; $cmd; exec bash" &
+    elif command -v konsole &> /dev/null; then
+        konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; $cmd; exec bash\"" &
+    else
+        echo "No supported terminal found. Please run manually:"
+        echo "cd '$PROJECT_DIR' && $cmd"
+    fi
+}
+
 # Start Worker Spawner in background
-echo "Starting Worker Spawner..."
-cd test
-python3 -c "
-import sys
-sys.path.insert(0, '..')
-from spawn_worker import SpawnWorkerService
-import rpyc
-from rpyc.utils.server import ThreadedServer
-
-service = SpawnWorkerService()
-server = ThreadedServer(service, hostname='0.0.0.0', port=4001, protocol_config={'allow_public_attrs': True, 'sync_request_timeout': None})
-print('SpawnWorker started on 0.0.0.0:4001')
-server.start()
-" &
-
+echo "Starting Worker Spawner in background..."
+nohup python3 test/spawn_worker.py > /tmp/spawn_worker.log 2>&1 &
 SPAWN_PID=$!
-cd ..
 
 echo "Waiting for SpawnWorker to start..."
 sleep 3
@@ -113,11 +116,26 @@ else
 fi
 
 echo ""
+echo "Opening additional terminals..."
+
+# Terminal 1: Network Control (Partition/Heal)
+echo "1. Opening Network Control terminal..."
+open_tab "Network Control" "python3 test/machine2_network_control.py"
+sleep 1
+
+# Terminal 2: Worker Logs Monitor
+echo "2. Opening Worker Logs terminal..."
+open_tab "Worker Logs" "tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash"
+
+echo ""
 echo "=========================================="
 echo "  Machine 2 Started Successfully!"
 echo "=========================================="
 echo ""
-echo "SpawnWorker is running in background"
+echo "Services running:"
+echo "  - SpawnWorker (background, PID: $SPAWN_PID)"
+echo "  - Network Control (terminal)"
+echo "  - Worker Logs Monitor (terminal)"
 echo ""
 echo "Checking Machine 1 connectivity..."
 MACHINE1_IP=$(grep -A 5 '"localhost"' config.json | grep '"ip"' | cut -d'"' -f4)

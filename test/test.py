@@ -167,19 +167,26 @@ while True:
             test_semantic_get(key)
         elif option == 7:
             print("\n=== NETWORK PARTITION ===")
-            print("Select target node:")
-            print("1. Localhost")
-            print("2. Other (Legacy)")
-            select_ip = int(input('Which node? '))
             
-            if select_ip == 1:
+            # Load nodes from config
+            nodes = config.get_nodes()
+            
+            print("Select target machine to block:")
+            for idx, node in enumerate(nodes, 1):
+                print(f"{idx}. {node['hostname']} ({node['ip']})")
+            print(f"{len(nodes) + 1}. Localhost (127.0.0.1)")
+            
+            select_ip = int(input('Which machine? '))
+            
+            if 1 <= select_ip <= len(nodes):
+                target_ip = nodes[select_ip - 1]['ip']
+                print(f"Selected: {nodes[select_ip - 1]['hostname']} at {target_ip}")
+            elif select_ip == len(nodes) + 1:
                 target_ip = '127.0.0.1'
+                print(f"Selected: Localhost at {target_ip}")
             else:
-                # Legacy options
-                node1_ip = '10.1.128.42'
-                node2_ip = '172.30.231.182'
-                legacy_choice = int(input('Which node manav(1)/pratham(2): '))
-                target_ip = node1_ip if legacy_choice == 1 else node2_ip
+                print("Invalid selection. Defaulting to first node.")
+                target_ip = nodes[0]['ip']
 
             task_type = int(input("Semantic(1) or Syntactic(2): "))
             
@@ -188,12 +195,9 @@ while True:
             syntactic_start = config.get_port('syntactic_worker_start')
             num_vnodes = config.get_quorum('N')
             
-            if target_ip == '127.0.0.1':
-                semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
-                syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
-            else:
-                semantic_vnodes = [3100, 3104, 3105]
-                syntactic_vnodes = [3000, 3004, 3005]
+            # Generate ports based on config
+            semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
+            syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
             
             all_vnodes = semantic_vnodes if task_type == 1 else syntactic_vnodes
             
