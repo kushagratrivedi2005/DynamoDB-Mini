@@ -5,6 +5,19 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Starting DynamoMini from $PROJECT_DIR..."
 
+# Kill any existing processes
+echo "Killing old processes..."
+pkill -f "worker.py" 2>/dev/null || true
+pkill -f "spawn_worker.py" 2>/dev/null || true
+pkill -f "client.py" 2>/dev/null || true
+pkill -f "HashRing.py" 2>/dev/null || true
+
+# Clear Redis cache for fresh start
+echo "Clearing Redis cache..."
+redis-cli FLUSHALL 2>/dev/null || echo "Warning: Could not clear Redis (is it running?)"
+
+echo "Starting fresh DynamoMini system..."
+
 # Function to open a new tab/window and run a command
 open_tab() {
     local title="$1"

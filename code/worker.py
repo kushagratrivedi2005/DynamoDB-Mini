@@ -599,9 +599,12 @@ class Worker(rpyc.Service):
                             pipe.hset(self.hashmap, key, guest_keys_value[key])
                             pipe.set(key, timestamp)
                         else: 
-                            if self_keys_timestamp[key] > timestamp:
-                                gift_keys_value[key] = self_keys_value[key]
-                                gift_keys_timestamp[key] = self_keys_timestamp[key]
+                            try:
+                                if self_keys_timestamp[key] > timestamp:
+                                    gift_keys_value[key] = self_keys_value[key]
+                                    gift_keys_timestamp[key] = self_keys_timestamp[key]
+                            except KeyError as e:
+                                logging.debug("Gossip KeyError for key %s: %s", key, e)
                     
                     pipe.execute()
                     break 
