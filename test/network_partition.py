@@ -83,37 +83,37 @@ if __name__ == '__main__':
     logging.debug(f'2. Heal partition')
     try:
         which = int(input('Which option ? '))
-        print("\nSelect target cluster:")
-        print("1. Sourav (10.237.27.95)")
-        print("2. BaadalVM (10.17.50.254)")
-        print("3. Localhost (127.0.0.1)")
-        which_node = int(input('Which node cluster? '))
+        
+        # Load nodes from config
+        nodes = config.get_nodes()
+        
+        print("\nSelect target machine:")
+        for idx, node in enumerate(nodes, 1):
+            print(f"{idx}. {node['hostname']} ({node['ip']})")
+        print(f"{len(nodes) + 1}. Localhost (127.0.0.1)")
+        
+        which_node = int(input('Which machine? '))
         
         which_task = int(input('Which task Semantic(1) and Syntactic(2) ? '))
         
-        if which_node == 1:
-            ip = '10.237.27.95'
-        elif which_node == 2:
-            ip = '10.17.50.254'
-        elif which_node == 3:
+        if 1 <= which_node <= len(nodes):
+            ip = nodes[which_node - 1]['ip']
+            print(f"Selected: {nodes[which_node - 1]['hostname']} at {ip}")
+        elif which_node == len(nodes) + 1:
             ip = '127.0.0.1'
+            print(f"Selected: Localhost at {ip}")
         else:
-            print("Invalid node selection. Defaulting to Localhost.")
-            ip = '127.0.0.1'
+            print("Invalid selection. Defaulting to first node.")
+            ip = nodes[0]['ip']
             
         # Load ports from config
         semantic_start = config.get_port('semantic_worker_start')
         syntactic_start = config.get_port('syntactic_worker_start')
         num_vnodes = config.get_quorum('N')
         
-        if which_node == 3: # Localhost
-             # Generate ports based on config
-             semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
-             syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
-        else:
-             # Legacy/Remote nodes
-             semantic_vnodes = [3100, 3104, 3105]
-             syntactic_vnodes = [3000, 3004, 3005]
+        # Generate ports based on config for all nodes
+        semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
+        syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
         
         all_vnodes = semantic_vnodes if which_task == 1 else syntactic_vnodes
         
@@ -122,8 +122,9 @@ if __name__ == '__main__':
         print(f"Available ports: {all_vnodes}")
         print("\nChoose partition scenario:")
         print("1. Block ALL ports (complete network partition)")
-        print("2. Block HALF (simulate 50% nodes down)")
+        print("2. Block HALF (block 4 vnodes)")
         print("3. Block SPECIFIC ports (choose manually)")
+        print("4. Block 7 vnodes (only 1 reachable - test W/R failure)")
         
         scenario = int(input('Select scenario: '))
         
@@ -132,7 +133,7 @@ if __name__ == '__main__':
             vnodes = all_vnodes
             print(f"Will block ALL {len(vnodes)} vnodes: {vnodes}")
         elif scenario == 2:
-            # Block half
+            # Block half (4 out of 8)
             half = len(all_vnodes) // 2
             vnodes = all_vnodes[:half]
             print(f"Will block HALF ({half} vnodes): {vnodes}")
@@ -146,6 +147,12 @@ if __name__ == '__main__':
             remaining = [p for p in all_vnodes if p not in vnodes]
             print(f"Will block {len(vnodes)} vnodes: {vnodes}")
             print(f"Remaining reachable: {remaining}")
+        elif scenario == 4:
+            # Block 7, leave 1 (test quorum failure)
+            vnodes = all_vnodes[:-1]  # All except last
+            print(f"Will block 7 vnodes: {vnodes}")
+            print(f"Only 1 reachable: {all_vnodes[-1:]}")
+            print(f"Note: With N=8, R=5, W=3, operations should FAIL (only 1 node < W=3)")
         else:
             print("Invalid scenario. Defaulting to block all.")
             vnodes = all_vnodes
@@ -154,7 +161,12 @@ if __name__ == '__main__':
         print(f"\n{'='*50}")
         print(f"Action: {'PARTITION' if which == 1 else 'HEAL'}")
         print(f"Target IP: {ip}")
-        print(f"Ports affected: {vnodes}")
+        print(f"Ports to block: {vnodes}")
+        if which == 1:
+            remaining = [p for p in all_vnodes if p not in vnodes]
+            print(f"Remaining accessible: {remaining}")
+            print(f"Quorum: N={config.get_quorum('N')}, R={config.get_quorum('R')}, W={config.get_quorum('W')}")
+            print(f"Available nodes after partition: {len(remaining)}")
         print(f"{'='*50}\n")
         
         confirm = input("Proceed? (y/n): ")
