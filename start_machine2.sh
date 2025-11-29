@@ -88,11 +88,17 @@ open_tab() {
     local title="$1"
     local cmd="$2"
     
-    if command -v gnome-terminal &> /dev/null; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS - use osascript
+        osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; $cmd\""
+    elif command -v gnome-terminal &> /dev/null; then
+        # Linux - gnome-terminal
         gnome-terminal --tab --title="$title" -- bash -c "cd '$PROJECT_DIR'; $cmd; exec bash" &
     elif command -v xterm &> /dev/null; then
+        # Linux - xterm
         xterm -T "$title" -e "cd '$PROJECT_DIR'; $cmd; exec bash" &
     elif command -v konsole &> /dev/null; then
+        # Linux - konsole  
         konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; $cmd; exec bash\"" &
     else
         echo "No supported terminal found. Please run manually:"
