@@ -139,8 +139,8 @@ while True:
     5. Semantic PUT
     6. Semantic GET
     -------------------
-    Note: For network partitioning in multi-machine setup,
-          use Machine 2's Network Control terminal
+    7. Network PARTITION (local/single-machine only)
+    8. Network HEAL
     =========================================
     ''')
     try:
@@ -165,37 +165,14 @@ while True:
         elif option == 6:
             key: str = 'rqdgq'
             test_semantic_get(key)
-        else:
-            print(f"\n⚠ Invalid option: {option}")
-            print("For multi-machine network partitioning:")
-            print("  → Use Machine 2's Network Control terminal")
-            print("  → Option 1: Block Machine 1")
-            print("  → Option 2: Heal Network")
-        
-        # Legacy partition code removed for multi-machine setup
-        # Use Machine 2's Network Control terminal instead
-        if False and option == 7:
+        elif option == 7:
             print("\n=== NETWORK PARTITION ===")
+            print("\n⚠ NOTE: This is for LOCAL/SINGLE-MACHINE testing only!")
+            print("For multi-machine setup, use Machine 2's Network Control terminal.\n")
             
-            # Load nodes from config
-            nodes = config.get_nodes()
-            
-            print("Select target machine to block:")
-            for idx, node in enumerate(nodes, 1):
-                print(f"{idx}. {node['hostname']} ({node['ip']})")
-            print(f"{len(nodes) + 1}. Localhost (127.0.0.1)")
-            
-            select_ip = int(input('Which machine? '))
-            
-            if 1 <= select_ip <= len(nodes):
-                target_ip = nodes[select_ip - 1]['ip']
-                print(f"Selected: {nodes[select_ip - 1]['hostname']} at {target_ip}")
-            elif select_ip == len(nodes) + 1:
-                target_ip = '127.0.0.1'
-                print(f"Selected: Localhost at {target_ip}")
-            else:
-                print("Invalid selection. Defaulting to first node.")
-                target_ip = nodes[0]['ip']
+            # For single machine, always use localhost
+            target_ip = '127.0.0.1'
+            print(f"Target: Localhost (127.0.0.1)")
 
             task_type = int(input("Semantic(1) or Syntactic(2): "))
             
@@ -266,10 +243,9 @@ while True:
                 
         elif option == 8:
             print("\n=== HEAL NETWORK ===")
-            print("Select target node:")
-            print("1. Localhost")
-            print("2. Other (Legacy)")
-            select_ip = int(input('Which node? '))
+            target_ip = '127.0.0.1'
+            print(f"Target: Localhost (127.0.0.1)")
+            select_ip = 1
             
             if select_ip == 1:
                 target_ip = '127.0.0.1'
