@@ -54,6 +54,20 @@ echo "  Machine 1 Stopped Successfully!"
 echo "=========================================="
 echo ""
 echo "Verification:"
-ps aux | grep -E "(HashRing|client.py|test.py|worker.py|spawn_worker)" | grep -v grep
+echo "Checking remaining processes..."
+REMAINING=$(ps aux | grep -E "(HashRing|client.py|test.py|worker.py|spawn_worker)" | grep -v grep)
+if [ -z "$REMAINING" ]; then
+    echo "✓ All processes stopped successfully!"
+else
+    echo "⚠ Some processes still running:"
+    echo "$REMAINING"
+fi
+
 echo ""
-echo "If no processes are shown above, cleanup was successful."
+echo "Checking ports..."
+for port in 3000 3200 3201 3202 3203 4001 6001; do
+    if lsof -ti:$port >/dev/null 2>&1; then
+        echo "⚠ Port $port still in use"
+    fi
+done
+echo "✓ Port check complete"

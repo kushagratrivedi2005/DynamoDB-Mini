@@ -42,9 +42,9 @@ fi
 # Check ports
 echo ""
 echo "Checking if required ports are free..."
-for port in 3000 6001; do
+for port in 3000 4001 6001; do
     if lsof -ti:$port >/dev/null 2>&1; then
-        echo "⚠ Port $port is in use. Run ./stop_all.sh first."
+        echo "⚠ Port $port is in use. Run ./stop_machine1.sh first."
         exit 1
     else
         echo "✓ Port $port is free"
@@ -74,18 +74,23 @@ open_tab() {
     fi
 }
 
-# Terminal 1: HashRing Coordinator
-echo "1. Starting HashRing Coordinator..."
+# Terminal 1: SpawnWorker
+echo "1. Starting SpawnWorker..."
+open_tab "SpawnWorker" "cd test && python3 spawn_worker.py"
+sleep 2
+
+# Terminal 2: HashRing Coordinator
+echo "2. Starting HashRing Coordinator..."
 open_tab "HashRing" "python3 consistent-hashing/HashRing.py"
 sleep 2
 
-# Terminal 2: Client
-echo "2. Starting Client..."
+# Terminal 3: Client
+echo "3. Starting Client..."
 open_tab "Client" "python3 code/client.py"
 sleep 2
 
-# Terminal 3: Test Interface
-echo "3. Starting Test Interface..."
+# Terminal 4: Test Interface
+echo "4. Starting Test Interface..."
 open_tab "Test" "cd test && python3 test.py"
 
 echo ""
@@ -93,21 +98,37 @@ echo "=========================================="
 echo "  Machine 1 Started Successfully!"
 echo "=========================================="
 echo ""
+echo "Checking Machine 2 connectivity..."
+MACHINE2_IP=$(grep -A 5 '"machine2"' config.json | grep '"ip"' | cut -d'"' -f4)
+echo "Machine 2 IP from config: $MACHINE2_IP"
+
+if timeout 2 bash -c "cat < /dev/null > /dev/tcp/$MACHINE2_IP/4001" 2>/dev/null; then
+    echo "✓ Machine 2 SpawnWorker is REACHABLE on port 4001"
+else
+    echo "⚠ Machine 2 SpawnWorker is NOT reachable yet"
+    echo "  Make sure to start Machine 2 before allocating nodes!"
+fi
+
+echo ""
 echo "Next Steps:"
 echo "----------"
-echo "1. In HashRing terminal:"
+echo "1. In SpawnWorker terminal:"
+echo "   → Select: 0 (Keep server alive)"
+echo ""
+echo "2. In HashRing terminal:"
 echo "   → Select: 2 (Syntactic workers)"
 echo ""
-echo "2. In Client terminal:"
+echo "3. In Client terminal:"
 echo "   → Select: 2 (Syntactic workers)"
 echo ""
-echo "3. Wait for Machine 2 to start its Worker Spawner"
+echo "4. Verify Machine 2 is ready (check above ✓)"
+echo "   If not ready, start Machine 2 now!"
 echo ""
-echo "4. In Test Interface terminal:"
+echo "5. In Test Interface terminal:"
 echo "   → Option 2: Allocate nodes"
 echo "   → Enter: 2 (to allocate both machines)"
 echo ""
-echo "5. Test multi-machine quorum:"
+echo "6. Test multi-machine quorum:"
 echo "   → Option 3: PUT data"
 echo "   → Option 4: GET data"
 echo ""

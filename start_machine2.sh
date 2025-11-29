@@ -66,7 +66,8 @@ fi
 # Check connectivity to Machine 1
 echo ""
 echo "Checking connectivity to Machine 1..."
-read -p "Enter Machine 1 IP address (from config.json): " machine1_ip
+machine1_ip=$(grep -A 5 '"localhost"' config.json | grep '"ip"' | cut -d'"' -f4)
+echo "Machine 1 IP from config.json: $machine1_ip"
 
 if ping -c 2 "$machine1_ip" &>/dev/null; then
     echo "✓ Machine 1 is reachable"
@@ -82,34 +83,53 @@ echo "  Starting Components on Machine 2"
 echo "=========================================="
 echo ""
 
-# Function to open terminal
-open_tab() {
-    local title="$1"
-    local cmd="$2"
-    
-    if command -v gnome-terminal &> /dev/null; then
-        gnome-terminal --tab --title="$title" -- bash -c "cd '$PROJECT_DIR'; $cmd; exec bash" &
-    elif command -v xterm &> /dev/null; then
-        xterm -T "$title" -e "cd '$PROJECT_DIR'; $cmd; exec bash" &
-    elif command -v konsole &> /dev/null; then
-        konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; $cmd; exec bash\"" &
-    else
-        echo "No supported terminal found. Please run manually:"
-        echo "cd '$PROJECT_DIR' && $cmd"
-    fi
-}
-
-# Terminal: Worker Spawner
+# Start Worker Spawner in background
 echo "Starting Worker Spawner..."
-open_tab "SpawnWorker" "cd test && python3 spawn_worker.py"
+cd test
+python3 -c "
+import sys
+sys.path.insert(0, '..')
+from spawn_worker import SpawnWorkerService
+import rpyc
+from rpyc.utils.server import ThreadedServer
+
+service = SpawnWorkerService()
+server = ThreadedServer(service, hostname='0.0.0.0', port=4001, protocol_config={'allow_public_attrs': True, 'sync_request_timeout': None})
+print('SpawnWorker started on 0.0.0.0:4001')
+server.start()
+" &
+
+SPAWN_PID=$!
+cd ..
+
+echo "Waiting for SpawnWorker to start..."
+sleep 3
+
+if ps -p $SPAWN_PID > /dev/null 2>&1; then
+    echo "✓ SpawnWorker started successfully (PID: $SPAWN_PID)"
+else
+    echo "✗ Failed to start SpawnWorker"
+    exit 1
+fi
 
 echo ""
 echo "=========================================="
 echo "  Machine 2 Started Successfully!"
 echo "=========================================="
 echo ""
-echo "In SpawnWorker terminal:"
-echo "  → Select: 0 (Keep server alive)"
+echo "SpawnWorker is running in background"
+echo ""
+echo "Checking Machine 1 connectivity..."
+MACHINE1_IP=$(grep -A 5 '"localhost"' config.json | grep '"ip"' | cut -d'"' -f4)
+echo "Machine 1 IP from config: $MACHINE1_IP"
+
+if timeout 2 bash -c "cat < /dev/null > /dev/tcp/$MACHINE1_IP/3000" 2>/dev/null; then
+    echo "✓ Machine 1 HashRing is REACHABLE"
+else
+    echo "⚠ Machine 1 HashRing is NOT reachable yet"
+    echo "  Machine 1 should be started first!"
+fi
+
 echo ""
 echo "After this:"
 echo "----------"
@@ -123,6 +143,12 @@ echo ""
 echo "4. You can monitor this machine's workers:"
 echo "   → ps aux | grep worker.py"
 echo "   → lsof -i :3200-3203"
+echo ""
+echo "5. To check connectivity anytime:"
+echo "   → ./check_connectivity.sh"
+echo ""
+echo "6. To stop Machine 2:"
+echo "   → ./stop_machine2.sh"
 echo ""
 echo "Configuration:"
 echo "  Machine 2 will host: 4 worker vnodes"
