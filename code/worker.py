@@ -1017,15 +1017,37 @@ class Worker(rpyc.Service):
     def exposed_get_key(self, key, request_id):
         try:
             logging.debug(f"{'-' * 10} Someone need get info {'-' * 10}")
+            timestamp = self.rds.get(key)
+            value = self.rds.hget(self.hashmap, key)
+            
+            # Return FAILURE if key doesn't exist (both timestamp and value are None)
+            if timestamp is None or value is None:
+                logging.debug(f"GET_KEY: Key '{key}' not found on this node")
+                return {
+                    "timestamp": None,
+                    "value": None,
+                    "request_id": request_id,
+                    "node": self.end_of_range,
+                    "status": self.FAILURE
+                }
+            
+            # Key exists, return SUCCESS with data
             return {
-                "timestamp": self.rds.get(key), 
-                "value": self.rds.hget(self.hashmap, key), 
+                "timestamp": timestamp,
+                "value": value,
                 "request_id": request_id,
                 "node": self.end_of_range,
                 "status": self.SUCCESS
             }
         except Exception as e:
             logging.debug(f"Something bad happened during get key: {e}")
+            return {
+                "timestamp": None,
+                "value": None,
+                "request_id": request_id,
+                "node": self.end_of_range,
+                "status": self.FAILURE
+            }
 
     def make_request_id(self, key):
         timestamp = time.time()
@@ -1078,22 +1100,18 @@ class Worker(rpyc.Service):
                         self.get_requests_log[request_id + '__NODE__'].append(node)
                 except Exception as e:
                     logging.debug ("Something bad happen in exposed_get ", e)
-            # Count reachable nodes
-            reachable_nodes = [node for node in replica_nodes if node in self.routing_table.keys()]
-            logging.debug(f"GET: Reachable nodes: {len(reachable_nodes)}, Required: {self.READ}")
             
-            # Check if we have enough reachable nodes to meet READ quorum
-            if len(reachable_nodes) < self.READ:
-                logging.debug(f"GET FAILED: Not enough reachable nodes ({len(reachable_nodes)} < {self.READ})")
-                return {"status": self.FAILURE, "msg": f"Not enough nodes for read quorum (need {self.READ}, have {len(reachable_nodes)})"}
-            
+            # Send GET requests to all reachable replica nodes
+            # Don't pre-check count - let actual responses determine if we have enough data
             responses = []
+            reachable_count = 0
             for node in replica_nodes:
                 if node in self.routing_table.keys():
+                    reachable_count += 1
                     try:
                         vc = self.routing_table[node]
                         print("Connection is happening at: ",self.routing_table[list(self.routing_table.keys())[0]], self.routing_table[list(self.routing_table.keys())[0]].ip, self.routing_table[list(self.routing_table.keys())[0]].port)
-                        conn = rpyc.connect(vc.ip, vc.port)
+                        conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
                         async_func = rpyc.async_(conn.root.get_key)
                         res = async_func(key, request_id)
                         res.add_callback(callback)
@@ -1102,14 +1120,22 @@ class Worker(rpyc.Service):
                     except Exception as e:
                         logging.debug (f'Something bad happen during GET : {e}')
             
+            logging.debug(f"GET: Sent requests to {len(responses)} reachable nodes (out of {len(replica_nodes)} replicas)")
+            
+            # If we can't possibly get R responses (not enough reachable nodes), fail early
+            if reachable_count < self.READ:
+                logging.debug(f"GET FAILED: Not enough reachable nodes ({reachable_count} < {self.READ})")
+                return {"status": self.FAILURE, "msg": f"Not enough reachable nodes for read quorum (need {self.READ}, have {reachable_count})"}
+            
             logging.debug ("Waiting for get...")
 
+            # wait_for_responses will count only nodes that successfully return data
             waiting = self.wait_for_responses(responses, self.READ, 'GET')
             logging.debug ("Wait done..")
             if waiting['status'] == self.SUCCESS: 
                 return {"status": self.SUCCESS, "value": {self.get_requests_log[request_id]['fresh_value']}}
             else: 
-                return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
+                return {"status": self.FAILURE, "msg": f"Not enough replicas returned data (need {self.READ} successful reads)"}
             
         else:
             return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
