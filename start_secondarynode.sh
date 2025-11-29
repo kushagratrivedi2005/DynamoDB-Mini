@@ -112,23 +112,6 @@ echo "  Starting Components on $MACHINE_NAME"
 echo "=========================================="
 echo ""
 
-# Function to open terminal
-open_tab() {
-    local title="$1"
-    local cmd="$2"
-    
-    if command -v gnome-terminal &> /dev/null; then
-        gnome-terminal --tab --title="$title" -- bash -c "cd '$PROJECT_DIR'; $cmd; exec bash" &
-    elif command -v xterm &> /dev/null; then
-        xterm -T "$title" -e "cd '$PROJECT_DIR'; $cmd; exec bash" &
-    elif command -v konsole &> /dev/null; then
-        konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; $cmd; exec bash\"" &
-    else
-        echo "No supported terminal found. Please run manually:"
-        echo "cd '$PROJECT_DIR' && $cmd"
-    fi
-}
-
 # Start Worker Spawner in background
 echo "Starting Worker Spawner in background..."
 nohup python3 test/spawn_worker.py > /tmp/spawn_worker.log 2>&1 &
@@ -149,12 +132,42 @@ echo "Opening additional terminals..."
 
 # Terminal 1: Network Control (Partition/Heal)
 echo "1. Opening Network Control terminal..."
-open_tab "Network - $MACHINE_NAME" "python3 test/secondary_network_control.py"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS - use osascript
+    osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; python3 test/secondary_network_control.py\""
+elif command -v gnome-terminal &> /dev/null; then
+    # Linux - gnome-terminal
+    gnome-terminal --tab --title="Network Control" -- bash -c "cd '$PROJECT_DIR'; python3 test/secondary_network_control.py; exec bash" &
+elif command -v xterm &> /dev/null; then
+    # Linux - xterm
+    xterm -T "Network Control" -e "cd '$PROJECT_DIR'; python3 test/secondary_network_control.py; exec bash" &
+elif command -v konsole &> /dev/null; then
+    # Linux - konsole
+    konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; python3 test/secondary_network_control.py; exec bash\"" &
+else
+    echo "No supported terminal found. Please run manually:"
+    echo "cd '$PROJECT_DIR' && python3 test/secondary_network_control.py"
+fi
 sleep 1
 
 # Terminal 2: Worker Logs Monitor
 echo "2. Opening Worker Logs terminal..."
-open_tab "Logs - $MACHINE_NAME" "tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS - use osascript
+    osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash\""
+elif command -v gnome-terminal &> /dev/null; then
+    # Linux - gnome-terminal
+    gnome-terminal --tab --title="Worker Logs" -- bash -c "cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash" &
+elif command -v xterm &> /dev/null; then
+    # Linux - xterm
+    xterm -T "Worker Logs" -e "cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash" &
+elif command -v konsole &> /dev/null; then
+    # Linux - konsole
+    konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash\"" &
+else
+    echo "No supported terminal found. Please run manually:"
+    echo "cd '$PROJECT_DIR' && tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash"
+fi
 
 echo ""
 echo "Checking Machine 1 connectivity..."
