@@ -32,32 +32,32 @@ def block_machine1():
         print("Cancelled.")
         return
     
-    print("\nBlocking traffic to Machine 1...")
+    print("\nBlocking traffic from Machine 1...")
     
-    # Get worker ports
+    # Get worker ports - we want to block Machine 2's own ports
+    # so Machine 1 cannot reach Machine 2's workers
     syntactic_start = config.get_port('syntactic_worker_start')
     semantic_start = config.get_port('semantic_worker_start')
     num_vnodes = config.get_quorum('N')
     
-    all_ports = []
-    all_ports.extend([syntactic_start + i for i in range(num_vnodes)])
-    all_ports.extend([semantic_start + i for i in range(num_vnodes)])
+    # Machine 2's worker ports (the ones running on THIS machine)
+    machine2_worker_ports = []
+    machine2_worker_ports.extend([syntactic_start + i for i in range(num_vnodes)])
+    machine2_worker_ports.extend([semantic_start + i for i in range(num_vnodes)])
     
-    # Also block coordinator ports
-    all_ports.append(config.get_port('hash_ring'))  # 3000
-    all_ports.append(config.get_port('client'))      # 6001
-    
-    for port in all_ports:
-        # Block incoming from Machine 1
-        cmd_in = f"sudo iptables -I INPUT 1 -s {machine1_ip} -p tcp --sport {port} -j DROP"
+    # Block Machine 1 from accessing Machine 2's workers
+    for port in machine2_worker_ports:
+        # Block incoming connections from Machine 1 to THIS machine's workers
+        cmd_in = f"sudo iptables -I INPUT 1 -s {machine1_ip} -p tcp --dport {port} -j DROP"
         subprocess.run(cmd_in, shell=True, stderr=subprocess.DEVNULL)
         
-        # Block outgoing to Machine 1
-        cmd_out = f"sudo iptables -I OUTPUT 1 -d {machine1_ip} -p tcp --dport {port} -j DROP"
+        # Block outgoing responses from THIS machine's workers to Machine 1
+        cmd_out = f"sudo iptables -I OUTPUT 1 -d {machine1_ip} -p tcp --sport {port} -j DROP"
         subprocess.run(cmd_out, shell=True, stderr=subprocess.DEVNULL)
     
-    print(f"✅ Blocked all traffic to/from Machine 1 ({machine1_ip})")
-    print(f"\nBlocked {len(all_ports)} ports")
+    print(f"✅ Blocked Machine 1 ({machine1_ip}) from accessing Machine 2's workers")
+    print(f"\nBlocked {len(machine2_worker_ports)} worker ports on THIS machine")
+    print(f"Ports: {machine2_worker_ports[:8]}")  # Show first 8
     print("\nTo verify:")
     print(f"  sudo iptables -L -n -v | grep {machine1_ip}")
     print("\nTo heal:")

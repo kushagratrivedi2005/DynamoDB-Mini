@@ -139,8 +139,8 @@ while True:
     5. Semantic PUT
     6. Semantic GET
     -------------------
-    7. Network PARTITION
-    8. Network HEAL
+    Note: For network partitioning in multi-machine setup,
+          use Machine 2's Network Control terminal
     =========================================
     ''')
     try:
@@ -165,7 +165,16 @@ while True:
         elif option == 6:
             key: str = 'rqdgq'
             test_semantic_get(key)
-        elif option == 7:
+        else:
+            print(f"\n⚠ Invalid option: {option}")
+            print("For multi-machine network partitioning:")
+            print("  → Use Machine 2's Network Control terminal")
+            print("  → Option 1: Block Machine 1")
+            print("  → Option 2: Heal Network")
+        
+        # Legacy partition code removed for multi-machine setup
+        # Use Machine 2's Network Control terminal instead
+        if False and option == 7:
             print("\n=== NETWORK PARTITION ===")
             
             # Load nodes from config

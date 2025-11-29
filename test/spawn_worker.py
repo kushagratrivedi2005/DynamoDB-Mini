@@ -23,7 +23,12 @@ class SpawnWorkers(rpyc.Service):
         logging.debug (f'Worker path: {self.worker_path}')
         # Always use the main worker.py file for both semantic and syntactic
         for i in range(0, vnodes):
-            Popen(['python3', self.worker_path, str(port + i)])
+            worker_port = port + i
+            log_file = f'/tmp/worker_{worker_port}.log'
+            with open(log_file, 'w') as log:
+                Popen(['python3', self.worker_path, str(worker_port)], 
+                      stdout=log, stderr=log)
+            logging.debug(f'Started worker on port {worker_port}, logs: {log_file}')
         return "success"
     
  
