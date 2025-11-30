@@ -35,9 +35,9 @@
         "replicated": 15
     },
     "quorum": {
-        "N": 60,
-        "R": 40,
-        "W": 30
+        "N": 4,
+        "R": 2,
+        "W": 2
     },
     "retries": {
         "replica": 2,

@@ -26,7 +26,16 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 import utils.config as config
 
-logging.basicConfig(level=logging.DEBUG)
+# Ensure logs directory exists
+log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
+# Configure logging with timestamps
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 '''
 gossip_data:
@@ -1081,6 +1090,9 @@ class Worker(rpyc.Service):
     This get is only made for primary node, 
     '''
     def exposed_get(self, key):
+        start_time = datetime.now()
+        logging.info(f"⏱️  GET START: key={key} | timestamp={start_time.strftime(self.FORMAT)}")
+        
         logging.debug (f"GET CALLED FOR KEY = {key}")
         logging.debug (f"Active nodes are: {self.routing_table}")
         logging.debug (f"Down nodes are: {self.down_routing_table}")
@@ -1231,19 +1243,31 @@ class Worker(rpyc.Service):
             print(f"\nGET Result: {successful_reads} total successful reads (need {self.READ})")
             
             if waiting['status'] == self.SUCCESS:
+                end_time = datetime.now()
+                duration = (end_time - start_time).total_seconds()
+                logging.info(f"✅ GET COMPLETE: key={key} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=SUCCESS")
                 print(f"✅ GET SUCCESS: Quorum satisfied ({successful_reads} >= {self.READ})")
                 print(f"   Value: {self.get_requests_log[request_id]['fresh_value']}")
                 print(f"{'='*60}\n")
                 return {"status": self.SUCCESS, "value": {self.get_requests_log[request_id]['fresh_value']}}
             else:
+                end_time = datetime.now()
+                duration = (end_time - start_time).total_seconds()
+                logging.info(f"❌ GET COMPLETE: key={key} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=FAILURE")
                 print(f"❌ GET FAILED: Quorum not satisfied ({successful_reads} < {self.READ})")
                 print(f"{'='*60}\n")
                 return {"status": self.FAILURE, "msg": f"Not enough nodes returned data (need {self.READ} successful reads, got {successful_reads})", "replica_nodes": replica_nodes, "controller_node": controller_node}
             
         else:
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds()
+            logging.info(f"❌ GET COMPLETE: key={key} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=INVALID_RESOURCE")
             return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
 
     def exposed_put(self, key, value):
+        start_time = datetime.now()
+        logging.info(f"⏱️  PUT START: key={key} value={value} | timestamp={start_time.strftime(self.FORMAT)}")
+        
         logging.debug (f"PUT REQUEST: key = {key}, value = {value}")
         logging.debug (f"Active nodes are: {self.routing_table}")
         logging.debug (f"Down nodes are: {self.down_routing_table}")
@@ -1370,6 +1394,9 @@ class Worker(rpyc.Service):
             # Check if we have enough reachable nodes to meet WRITE quorum
             # Primary write is already done, so we need W-1 more successful replica writes
             if reachable_count < self.WRITE:
+                end_time = datetime.now()
+                duration = (end_time - start_time).total_seconds()
+                logging.info(f"❌ PUT COMPLETE: key={key} value={value} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=FAILURE | reason=insufficient_nodes")
                 print(f"\n❌ PUT FAILED: Not enough reachable nodes!")
                 print(f"   Reachable: {reachable_count} < Required: {self.WRITE}")
                 print(f"   Need {self.WRITE - 1} more replica writes but only {len(reachable_replicas)} replicas reachable")
@@ -1413,10 +1440,16 @@ class Worker(rpyc.Service):
                 print(f"Required: W={self.WRITE}")
                 
                 if waiting['status'] == self.SUCCESS:
+                    end_time = datetime.now()
+                    duration = (end_time - start_time).total_seconds()
+                    logging.info(f"✅ PUT COMPLETE: key={key} value={value} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=SUCCESS | replicas={total_writes}")
                     print(f"✅ PUT SUCCESS: Quorum satisfied ({total_writes} >= {self.WRITE})")
                     print(f"{'='*60}\n")
                     return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1} 
                 else:
+                    end_time = datetime.now()
+                    duration = (end_time - start_time).total_seconds()
+                    logging.info(f"❌ PUT COMPLETE: key={key} value={value} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=FAILURE | replicas={total_writes}")
                     print(f"❌ PUT FAILED: Quorum not satisfied ({total_writes} < {self.WRITE})")
                     print(f"{'='*60}\n")
                     return {"status": self.FAILURE, "msg": "Service unavailable! Retry again", "replica_nodes": replica_nodes, "controller_node": controller_node}
@@ -1424,15 +1457,24 @@ class Worker(rpyc.Service):
                 # No replicas available, but primary write was successful
                 # Only succeeds if W=1 (quorum satisfied by primary alone)
                 if self.WRITE == 1:
+                    end_time = datetime.now()
+                    duration = (end_time - start_time).total_seconds()
+                    logging.info(f"✅ PUT COMPLETE: key={key} value={value} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=SUCCESS | replicas=1 (primary only)")
                     print(f"✅ PUT SUCCESS: No replicas but W=1, primary write sufficient")
                     print(f"{'='*60}\n")
                     return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1}
                 else:
+                    end_time = datetime.now()
+                    duration = (end_time - start_time).total_seconds()
+                    logging.info(f"❌ PUT COMPLETE: key={key} value={value} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=FAILURE | reason=no_replicas")
                     print(f"❌ PUT FAILED: No replicas available (need W={self.WRITE}, only have primary)")
                     print(f"{'='*60}\n")
                     return {"status": self.FAILURE, "msg": "Not enough replicas available for write quorum", "replica_nodes": replica_nodes, "controller_node": controller_node}
 
         else:
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds()
+            logging.info(f"❌ PUT COMPLETE: key={key} value={value} | timestamp={end_time.strftime(self.FORMAT)} | duration={duration:.3f}s | status=INVALID_RESOURCE")
             #* Return the node which should contain this key, if I'm not the controller
             #* of that key any more/ or was never.
             return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
