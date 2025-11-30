@@ -48,6 +48,12 @@ echo "Cleaning up socket files..."
 rm -f /tmp/rpyc_* 2>/dev/null
 rm -f /tmp/dynamomini_* 2>/dev/null
 
+# Clean up log files
+echo "Cleaning up log files..."
+rm -f /tmp/worker_*.log 2>/dev/null
+rm -f /tmp/quorum.log 2>/dev/null
+rm -f /tmp/spawn_worker.log 2>/dev/null
+
 # Drop any connection tracking
 echo "Clearing connection tracking..."
 sudo conntrack -D -p tcp --dport 3000 2>/dev/null

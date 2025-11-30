@@ -48,6 +48,12 @@ sudo iptables -X 2>/dev/null
 echo "Flushing Redis database..."
 redis-cli FLUSHALL 2>/dev/null
 
+# Clean up log files
+echo "Cleaning up log files..."
+rm -f /tmp/worker_*.log 2>/dev/null
+rm -f /tmp/quorum.log 2>/dev/null
+rm -f /tmp/spawn_worker.log 2>/dev/null
+
 echo ""
 echo "=========================================="
 echo "  Machine 1 Stopped Successfully!"
