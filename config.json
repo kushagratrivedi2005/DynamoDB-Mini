@@ -30,7 +30,7 @@
     "timeouts": {
         "cache": 30,
         "gossip": 10,
-        "ping_down_node": 30,
+        "ping_down_node": 5,
         "replicate_sync": 10,
         "replicated": 30
     },

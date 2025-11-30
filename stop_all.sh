@@ -58,6 +58,10 @@ sudo conntrack -D -p tcp --dport 3203 2>/dev/null
 sudo conntrack -D -p tcp --dport 4001 2>/dev/null
 sudo conntrack -D -p tcp --dport 6001 2>/dev/null
 
+# Clear Redis cache
+echo "Clearing Redis cache..."
+redis-cli FLUSHALL 2>/dev/null && echo "✓ Redis cache cleared"
+
 echo ""
 sleep 2
 echo "Verifying all ports are free..."
@@ -71,4 +75,4 @@ done
 
 echo ""
 echo "All DynamoMini processes stopped and ports freed!"
-echo "Note: Redis is still running (use 'redis-cli shutdown' to stop it)"
+echo "Redis cache has been cleared"
