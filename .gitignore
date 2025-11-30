@@ -2,3 +2,14 @@
 __pycache__/
 logs/*
 dump.rdb
+frames/*
+simulation_*.mp4
+simulation_*.gif
+simulation_*.png
+simulation_frames_1000nodes/*
+hashring_visuatlization/frames/*
+hashring_visuatlization/simulation_frames_*
+hashring_visuatlization/*nodes/
+hashring_visuatlization/*.mp4
+hashring_visuatlization/__pycache__/   
+hashring_visuatlization/frames/
