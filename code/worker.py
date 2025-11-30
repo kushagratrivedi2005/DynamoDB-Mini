@@ -1184,7 +1184,12 @@ class Worker(rpyc.Service):
             # Primary's data is already counted in count_responses, don't query it again
             responses = []
             reachable_count = 0
-            for node in replica_nodes:
+            # Shuffle nodes to avoid getting stuck behind multiple sequential down nodes
+            # This ensures we don't wait 3s+3s+3s+3s for a down machine before contacting a healthy one
+            replica_node_keys = list(replica_nodes.keys())
+            random.shuffle(replica_node_keys)
+            
+            for node in replica_node_keys:
                 # Skip self - we already counted primary's data above
                 if node == self.end_of_range:
                     continue
@@ -1402,6 +1407,9 @@ class Worker(rpyc.Service):
                 return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {reachable_count})", "replica_nodes": replica_nodes, "controller_node": controller_node}
             
             responses = []
+            # Shuffle nodes to avoid getting stuck behind multiple sequential down nodes
+            # This ensures we don't wait 3s+3s+3s+3s for a down machine before contacting a healthy one
+            random.shuffle(reachable_replicas)
             for node in reachable_replicas:  # Only try to connect to reachable replicas
                 vc = replica_nodes[node]
                 try:
