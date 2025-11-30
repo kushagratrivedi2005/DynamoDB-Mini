@@ -1084,13 +1084,17 @@ class Worker(rpyc.Service):
         replica_nodes, controller_node = self.exposed_fetch_routing_info(key=key, need_serialized=False)
         timestamp = self.rds.get(key)
         key_hash = str(self.hash_function(key))
-        count_responses, fresh_value, fresh_timestamp = 0, self.rds.hget(self.hashmap, key), self.rds.get(key)
+        fresh_value, fresh_timestamp = self.rds.hget(self.hashmap, key), self.rds.get(key)
+        # Count primary's data toward R quorum if it exists
+        count_responses = 1 if (fresh_value is not None and fresh_timestamp is not None) else 0
         self.get_requests_log[request_id] = {"fresh_value": fresh_value, "fresh_timestamp": fresh_timestamp, "count_responses": count_responses}
         self.get_requests_log[request_id + '__NODE__']  = []
 
         print(f"\n{'='*60}")
         print(f"GET QUORUM CHECK for key '{key}'")
         print(f"{'='*60}")
+        primary_has_data = (fresh_value is not None and fresh_timestamp is not None)
+        print(f"Primary node: {self.end_of_range} - {'✓ HAS DATA' if primary_has_data else '✗ NO DATA'}")
         print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes")
         for node in replica_nodes:
             if node in self.routing_table.keys():
@@ -1098,7 +1102,8 @@ class Worker(rpyc.Service):
                 print(f"  ✓ {node} -> {vc.ip}:{vc.port} (REACHABLE)")
             else:
                 print(f"  ✗ {node} (UNREACHABLE - not in routing table)")
-        print(f"\nQuorum requirement: Need R={self.READ} successful reads")
+        print(f"\nQuorum requirement: Need R={self.READ} successful reads (including primary if it has data)")
+        print(f"Current count: {count_responses} (primary)")
         print(f"{'='*60}\n")
 
         # return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
@@ -1111,19 +1116,25 @@ class Worker(rpyc.Service):
                     res = response.value
                     if (res == None):
                         return
-                    timestamp = float(res['timestamp'])
-                    value = res['value']
-                    request_id = res['request_id']
-                    node = res['node']
+                    # Check status field - only count SUCCESS responses with data
+                    if res.get('status') == self.FAILURE:
+                        return
+                    timestamp = res.get('timestamp')
+                    value = res.get('value')
+                    request_id = res.get('request_id')
+                    node = res.get('node')
                     if (timestamp is None) or (value is None):
                         return
-                    self.get_requests_log[request_id]['count_responses'] += 1 
-                    fresh_timestamp = float(self.get_requests_log[request_id]['fresh_timestamp'])
+                    # This replica has data - count it toward R quorum
+                    self.get_requests_log[request_id]['count_responses'] += 1
+                    timestamp = float(timestamp)
+                    fresh_timestamp_val = self.get_requests_log[request_id]['fresh_timestamp']
+                    fresh_timestamp = float(fresh_timestamp_val) if fresh_timestamp_val is not None else -1
                     if timestamp == fresh_timestamp:
                         self.get_requests_log[request_id + '__NODE__'].append(node)
                     elif timestamp > fresh_timestamp:
                         self.get_requests_log[request_id]['fresh_value'] = value
-                        self.get_requests_log[request_id]['fresh_timestamp'] = timestamp
+                        self.get_requests_log[request_id]['fresh_timestamp'] = str(timestamp)
                         self.get_requests_log[request_id + '__NODE__'].append(node)
                 except Exception as e:
                     logging.debug ("Something bad happen in exposed_get ", e)
@@ -1150,23 +1161,33 @@ class Worker(rpyc.Service):
             print(f"GET: Sent {len(responses)} async requests to reachable nodes")
             logging.debug(f"GET: Sent requests to {len(responses)} reachable nodes (out of {len(replica_nodes)} replicas)")
             
-            # If we can't possibly get R responses (not enough reachable nodes), fail early
-            if reachable_count < self.READ:
-                print(f"\n❌ GET FAILED: Not enough reachable nodes!")
-                print(f"   Reachable: {reachable_count} < Required: {self.READ}")
+            # If we can't possibly get R responses (account for primary's data if it exists), fail early
+            total_possible_reads = count_responses + reachable_count  # primary (if has data) + replicas
+            if total_possible_reads < self.READ:
+                print(f"\n❌ GET FAILED: Not enough nodes with potential data!")
+                print(f"   Primary: {count_responses}, Reachable replicas: {reachable_count}")
+                print(f"   Total possible: {total_possible_reads} < Required: {self.READ}")
                 print(f"{'='*60}\n")
-                logging.debug(f"GET FAILED: Not enough reachable nodes ({reachable_count} < {self.READ})")
-                return {"status": self.FAILURE, "msg": f"Not enough reachable nodes for read quorum (need {self.READ}, have {reachable_count})"}
+                logging.debug(f"GET FAILED: Not enough nodes ({total_possible_reads} < {self.READ})")
+                return {"status": self.FAILURE, "msg": f"Not enough reachable nodes for read quorum (need {self.READ}, have {total_possible_reads} max)"}
             
             print(f"Waiting for responses... (need {self.READ} successful reads)")
             logging.debug ("Waiting for get...")
 
             # wait_for_responses will count only nodes that successfully return data
-            waiting = self.wait_for_responses(responses, self.READ, 'GET')
-            logging.debug ("Wait done..")
+            # We need R-count_responses more reads (since primary may have already contributed)
+            needed_replica_reads = max(0, self.READ - count_responses)
+            print(f"Waiting for {needed_replica_reads} more successful reads (already have {count_responses} from primary)")
+            
+            if needed_replica_reads > 0:
+                waiting = self.wait_for_responses(responses, needed_replica_reads, 'GET')
+                logging.debug ("Wait done..")
+            else:
+                # Primary data alone satisfies R quorum (e.g., R=1)
+                waiting = {'status': self.SUCCESS}
             
             successful_reads = self.get_requests_log[request_id]['count_responses']
-            print(f"\nGET Result: {successful_reads} nodes returned data (need {self.READ})")
+            print(f"\nGET Result: {successful_reads} total successful reads (need {self.READ})")
             
             if waiting['status'] == self.SUCCESS:
                 print(f"✅ GET SUCCESS: Quorum satisfied ({successful_reads} >= {self.READ})")
@@ -1176,7 +1197,7 @@ class Worker(rpyc.Service):
             else:
                 print(f"❌ GET FAILED: Quorum not satisfied ({successful_reads} < {self.READ})")
                 print(f"{'='*60}\n")
-                return {"status": self.FAILURE, "msg": f"Not enough replicas returned data (need {self.READ} successful reads)"}
+                return {"status": self.FAILURE, "msg": f"Not enough nodes returned data (need {self.READ} successful reads, got {successful_reads})"}
             
         else:
             return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
@@ -1252,49 +1273,57 @@ class Worker(rpyc.Service):
             Try to send the async rpyc request to the replica node 
             So that they can have key, value stored.
             '''
-            # Count reachable replica nodes
+            # Count reachable replica nodes (check if they're in routing_table)
             print(f"\n{'='*60}")
             print(f"PUT QUORUM CHECK for key '{key}' = '{value}'")
             print(f"{'='*60}")
-            print(f"Primary node: {self.end_of_range}")
-            print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes (including primary)")
+            print(f"Primary node: {self.end_of_range} (THIS NODE - already written to Redis)")
+            print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes")
             
+            reachable_count = 1  # Primary counts as 1 write (already done to Redis)
             reachable_replicas = []
+            unreachable_replicas = []
+            
             for node, vc in replica_nodes.items():
                 if node == self.end_of_range:
-                    print(f"  ✓ {node} -> THIS NODE (primary)")
-                else:
+                    print(f"  ✓ {node} -> THIS NODE (primary, write complete)")
+                elif node in self.routing_table:
                     reachable_replicas.append(node)
-                    print(f"  ✓ {node} -> {vc.ip}:{vc.port} (replica)")
+                    reachable_count += 1
+                    print(f"  ✓ {node} -> {vc.ip}:{vc.port} (reachable replica)")
+                else:
+                    unreachable_replicas.append(node)
+                    print(f"  ✗ {node} -> {vc.ip}:{vc.port} (UNREACHABLE - not in routing table)")
             
-            print(f"\nQuorum requirement: Need W={self.WRITE} successful writes (excluding primary)")
-            print(f"Reachable replicas: {len(reachable_replicas)}")
+            print(f"\nQuorum requirement: Need W={self.WRITE} successful writes (including primary)")
+            print(f"Reachable nodes: {reachable_count} (1 primary + {len(reachable_replicas)} replicas)")
             print(f"{'='*60}\n")
             
-            logging.debug(f"PUT: Reachable replicas: {len(reachable_replicas)}, Required WRITE quorum: {self.WRITE}")
+            logging.debug(f"PUT: Reachable nodes: {reachable_count}, Required WRITE quorum: {self.WRITE}")
             
             # Check if we have enough reachable nodes to meet WRITE quorum
-            if len(reachable_replicas) < self.WRITE:
-                print(f"\n❌ PUT FAILED: Not enough reachable replicas!")
-                print(f"   Reachable: {len(reachable_replicas)} < Required: {self.WRITE}")
+            # Primary write is already done, so we need W-1 more successful replica writes
+            if reachable_count < self.WRITE:
+                print(f"\n❌ PUT FAILED: Not enough reachable nodes!")
+                print(f"   Reachable: {reachable_count} < Required: {self.WRITE}")
+                print(f"   Need {self.WRITE - 1} more replica writes but only {len(reachable_replicas)} replicas reachable")
                 print(f"{'='*60}\n")
-                logging.debug(f"PUT FAILED: Not enough reachable nodes ({len(reachable_replicas)} < {self.WRITE})")
-                return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {len(reachable_replicas)})"}
+                logging.debug(f"PUT FAILED: Not enough reachable nodes ({reachable_count} < {self.WRITE})")
+                return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {reachable_count})"}
             
             responses = []
-            for node, vc in replica_nodes.items():
-                if node != self.end_of_range: #* End of range represent node hash
-                    try:
-                        print(" coming till herer ")
-                        conn = rpyc.connect(vc.ip, vc.port)
-                        async_func = rpyc.async_(conn.root.replicated_put)
-                        res = async_func(key, value, request_id, timestamp)
-                        res.add_callback(callback)
-                        res.set_expiry(self.EXPIRE)
-                        responses.append(res)
-                    except Exception as e:
-                        logging.debug ("Some thing bad happen at put ", e)
-                        pass 
+            for node in reachable_replicas:  # Only try to connect to reachable replicas
+                vc = replica_nodes[node]
+                try:
+                    conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
+                    async_func = rpyc.async_(conn.root.replicated_put)
+                    res = async_func(key, value, request_id, timestamp)
+                    res.add_callback(callback)
+                    res.set_expiry(self.EXPIRE)
+                    responses.append(res)
+                except Exception as e:
+                    logging.debug (f"Failed to connect to replica {node}: {e}")
+                    pass 
             '''
                 Now wait for the W to finish the writes and once they are done
                 we are free to repsonse to the client for their write
@@ -1307,25 +1336,35 @@ class Worker(rpyc.Service):
             '''
             # time.sleep(5) # this will be replced by wait
             if len(responses) > 0:
-                print(f"Waiting for responses... (need {min(self.WRITE, len(responses))} successful writes)")
-                waiting = self.wait_for_responses(responses, min(self.WRITE, len(responses)), 'PUT') 
+                # We need W-1 successful replica writes (primary already written)
+                required_replica_writes = self.WRITE - 1
+                print(f"Waiting for responses... (need {required_replica_writes} successful replica writes)")
+                waiting = self.wait_for_responses(responses, required_replica_writes, 'PUT') 
                 
                 replicated_count = self.requests_log[request_id]["replicated_on"]
-                print(f"\nPUT Result: {replicated_count} replicas confirmed write (need {self.WRITE})")
+                total_writes = 1 + replicated_count  # 1 (primary) + replicas
+                print(f"\nPUT Result: {total_writes} total writes (1 primary + {replicated_count} replicas)")
+                print(f"Required: W={self.WRITE}")
                 
                 if waiting['status'] == self.SUCCESS:
-                    print(f"✅ PUT SUCCESS: Quorum satisfied ({replicated_count} >= {self.WRITE})")
+                    print(f"✅ PUT SUCCESS: Quorum satisfied ({total_writes} >= {self.WRITE})")
                     print(f"{'='*60}\n")
                     return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1} 
                 else:
-                    print(f"❌ PUT FAILED: Quorum not satisfied ({replicated_count} < {self.WRITE})")
-                    print(f"{'='*60}\n") 
-                    print("failure ,,,,,,")
+                    print(f"❌ PUT FAILED: Quorum not satisfied ({total_writes} < {self.WRITE})")
+                    print(f"{'='*60}\n")
                     return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
             else:
-                # No replicas to wait for, but primary write was successful
-                print("Success (No replicas)")
-                return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1}
+                # No replicas available, but primary write was successful
+                # Only succeeds if W=1 (quorum satisfied by primary alone)
+                if self.WRITE == 1:
+                    print(f"✅ PUT SUCCESS: No replicas but W=1, primary write sufficient")
+                    print(f"{'='*60}\n")
+                    return {"status": self.SUCCESS, "msg": f"Successfully wrote {key} = {value}", "version_number": -1}
+                else:
+                    print(f"❌ PUT FAILED: No replicas available (need W={self.WRITE}, only have primary)")
+                    print(f"{'='*60}\n")
+                    return {"status": self.FAILURE, "msg": "Not enough replicas available for write quorum"}
 
         else:
             #* Return the node which should contain this key, if I'm not the controller
