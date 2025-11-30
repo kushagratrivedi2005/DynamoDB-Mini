@@ -1169,7 +1169,7 @@ class Worker(rpyc.Service):
                 print(f"   Total possible: {total_possible_reads} < Required: {self.READ}")
                 print(f"{'='*60}\n")
                 logging.debug(f"GET FAILED: Not enough nodes ({total_possible_reads} < {self.READ})")
-                return {"status": self.FAILURE, "msg": f"Not enough reachable nodes for read quorum (need {self.READ}, have {total_possible_reads} max)"}
+                return {"status": self.FAILURE, "msg": f"Not enough reachable nodes for read quorum (need {self.READ}, have {total_possible_reads} max)", "replica_nodes": replica_nodes, "controller_node": controller_node}
             
             print(f"Waiting for responses... (need {self.READ} successful reads)")
             logging.debug ("Waiting for get...")
@@ -1197,7 +1197,7 @@ class Worker(rpyc.Service):
             else:
                 print(f"❌ GET FAILED: Quorum not satisfied ({successful_reads} < {self.READ})")
                 print(f"{'='*60}\n")
-                return {"status": self.FAILURE, "msg": f"Not enough nodes returned data (need {self.READ} successful reads, got {successful_reads})"}
+                return {"status": self.FAILURE, "msg": f"Not enough nodes returned data (need {self.READ} successful reads, got {successful_reads})", "replica_nodes": replica_nodes, "controller_node": controller_node}
             
         else:
             return {'status': self.INVALID_RESOURCE, 'replica_nodes': replica_nodes, 'controller_node': controller_node}
@@ -1309,7 +1309,7 @@ class Worker(rpyc.Service):
                 print(f"   Need {self.WRITE - 1} more replica writes but only {len(reachable_replicas)} replicas reachable")
                 print(f"{'='*60}\n")
                 logging.debug(f"PUT FAILED: Not enough reachable nodes ({reachable_count} < {self.WRITE})")
-                return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {reachable_count})"}
+                return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {reachable_count})", "replica_nodes": replica_nodes, "controller_node": controller_node}
             
             responses = []
             for node in reachable_replicas:  # Only try to connect to reachable replicas
@@ -1353,7 +1353,7 @@ class Worker(rpyc.Service):
                 else:
                     print(f"❌ PUT FAILED: Quorum not satisfied ({total_writes} < {self.WRITE})")
                     print(f"{'='*60}\n")
-                    return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
+                    return {"status": self.FAILURE, "msg": "Service unavailable! Retry again", "replica_nodes": replica_nodes, "controller_node": controller_node}
             else:
                 # No replicas available, but primary write was successful
                 # Only succeeds if W=1 (quorum satisfied by primary alone)
@@ -1364,7 +1364,7 @@ class Worker(rpyc.Service):
                 else:
                     print(f"❌ PUT FAILED: No replicas available (need W={self.WRITE}, only have primary)")
                     print(f"{'='*60}\n")
-                    return {"status": self.FAILURE, "msg": "Not enough replicas available for write quorum"}
+                    return {"status": self.FAILURE, "msg": "Not enough replicas available for write quorum", "replica_nodes": replica_nodes, "controller_node": controller_node}
 
         else:
             #* Return the node which should contain this key, if I'm not the controller
