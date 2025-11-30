@@ -1236,8 +1236,8 @@ class Worker(rpyc.Service):
                         continue
             #* controller node is not always the first node.(May be I'm a programmer)
             logging.debug ("Done writing to redis")
-            if len(self.routing_table) < self.WRITE:
-                return {"status": self.FAILURE, "msg": "Not enough replicas to write, Please try later!"}
+            # Note: Removed old check "if len(self.routing_table) < self.WRITE" 
+            # The proper reachability check for THIS key's replicas is done below
         
             '''
             Below is the logic to replicate on the replicas
