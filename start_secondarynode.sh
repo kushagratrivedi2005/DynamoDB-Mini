@@ -152,22 +152,7 @@ sleep 1
 
 # Terminal 2: Worker Logs Monitor
 echo "2. Opening Worker Logs terminal..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS - use osascript
-    osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash\""
-elif command -v gnome-terminal &> /dev/null; then
-    # Linux - gnome-terminal
-    gnome-terminal --tab --title="Worker Logs" -- bash -c "cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash" &
-elif command -v xterm &> /dev/null; then
-    # Linux - xterm
-    xterm -T "Worker Logs" -e "cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash" &
-elif command -v konsole &> /dev/null; then
-    # Linux - konsole
-    konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash\"" &
-else
-    echo "No supported terminal found. Please run manually:"
-    echo "cd '$PROJECT_DIR' && tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will be spawned after allocation from Machine 1.'; bash"
-fi
+open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f /tmp/worker_3200.log ]; do sleep 2; echo 'Still waiting for allocation from Machine 1...'; done; echo 'Workers detected! Monitoring logs...'; tail -f /tmp/worker_*.log"
 
 echo ""
 echo "Checking Machine 1 connectivity..."
