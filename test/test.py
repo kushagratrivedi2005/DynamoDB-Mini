@@ -32,7 +32,8 @@ def get_random_string(length: int) -> str:
 
 def test_hashring() -> None:
     pass 
-
+    logging.info("Test Interface Initialized")
+    print(f"Test Interface Initialized. Logs at {os.path.join(log_dir, 'test.log')}")
 def test_spawn_wokers() -> None:
     count: int = int(input('Allocate how much nodes ? '))
     logging.debug(msg=f"Allocating {count} number of nodes on Hashring...")

@@ -502,6 +502,7 @@ class Worker(rpyc.Service):
                     logging.debug ("\nREMOVE FROM DOWN NODE: ", node)
                     self.lock_down_routing_table.acquire()
                     del self.down_routing_table[str(node)]
+                    downtable_logger.info(f"[Node {self.port}] Node {node} recovered. Removing from downtable.")
                     self.lock_down_routing_table.release()
                     logging.debug ("\nADDING TO ACTIVE NODE: ", node)
                     self.lock_routing_table.acquire()
@@ -524,6 +525,7 @@ class Worker(rpyc.Service):
                     self.lock_down_routing_table.acquire()
                     # vc.version_number += 1
                     self.down_routing_table[str(node)] = vc
+                    downtable_logger.info(f"[Node {self.port}] Node {node} failed ping. Adding to downtable.")
                     self.lock_down_routing_table.release()
 
                     # Handle the range updates
@@ -599,6 +601,7 @@ class Worker(rpyc.Service):
                         # Only add to down table after verifying it's actually unreachable
                         if not self.ping(vc.ip, vc.port, timeout=1):
                             self.down_routing_table[node] = vc
+                            downtable_logger.info(f"[Node {self.port}] Node {node} marked down via gossip (verified unreachable).")
                             new_down += 1
                     
                     if new_active > 0 or new_down > 0:
@@ -801,6 +804,7 @@ class Worker(rpyc.Service):
             elif down_routing_table[node].version_number > self.down_routing_table[node].version_number:
                 self.lock_down_routing_table.acquire()
                 self.down_routing_table[node] = down_routing_table[node]    
+                downtable_logger.info(f"[Node {self.port}] Updated downtable entry for {node} from gossip (newer version).")
                 self.lock_down_routing_table.release()    
         '''
         A fresh entry which I haven't seen before
@@ -817,6 +821,7 @@ class Worker(rpyc.Service):
             if node not in self_active_nodes:
                 self.lock_down_routing_table.acquire()
                 self.down_routing_table[node] = down_routing_table[node]
+                downtable_logger.info(f"[Node {self.port}] Added new downtable entry for {node} from gossip.")
                 self.lock_down_routing_table.release()
         '''
         A fresh entry which guest haven't seen before 
