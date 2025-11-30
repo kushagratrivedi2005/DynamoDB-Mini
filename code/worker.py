@@ -1102,11 +1102,13 @@ class Worker(rpyc.Service):
         primary_has_data = (fresh_value is not None and fresh_timestamp is not None)
         print(f"Primary node: {self.end_of_range} - {'✓ HAS DATA' if primary_has_data else '✗ NO DATA'}")
         print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes")
+        
         quorum_nodes = []
         for node in replica_nodes:
             if node in self.routing_table.keys():
                 vc = self.routing_table[node]
                 quorum_nodes.append(f"{vc.ip}:{vc.port}")
+        
         with open("/tmp/quorum.log", "a") as qlog:
             qlog.write(f"[GET] key={key} | nodes={quorum_nodes}\n")
         for node in replica_nodes:

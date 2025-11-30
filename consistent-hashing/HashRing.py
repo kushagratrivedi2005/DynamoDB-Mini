@@ -158,9 +158,21 @@ class HashRing(rpyc.Service):
                 go_to_ring[self.give_hash(f'{hostname}_{who}')] = (ip, port + who, who)
             
             print(f"We are here & url to connnect is: {ip}, {self.SPAWN_WORKER_PORT}")
-            conn = rpyc.connect(ip, self.SPAWN_WORKER_PORT)
-            conn._config['sync_request_timeout'] = None 
-            conn.root.spawn_worker(port=node_conf["port"], vnodes=node_conf["vnodes"], spawn_whom=self.spawn_whom)
+            
+            # Retry logic for connecting to SpawnWorker
+            max_retries = 5
+            for attempt in range(max_retries):
+                try:
+                    conn = rpyc.connect(ip, self.SPAWN_WORKER_PORT, config={'sync_request_timeout': 30, 'connect_timeout': 3})
+                    conn.root.spawn_worker(port=node_conf["port"], vnodes=node_conf["vnodes"], spawn_whom=self.spawn_whom)
+                    conn.close()
+                    break
+                except Exception as e:
+                    if attempt == max_retries - 1:
+                        logging.error(f"Failed to connect to SpawnWorker at {ip}:{self.SPAWN_WORKER_PORT} after {max_retries} attempts: {e}")
+                        raise e
+                    logging.warning(f"Connection attempt {attempt + 1} to SpawnWorker failed: {e}. Retrying in 2 seconds...")
+                    time.sleep(2)
         
         print(go_to_ring)
         logging.debug("Waiting for workers to start their rpyc servers...")

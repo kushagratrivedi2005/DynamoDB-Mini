@@ -11,32 +11,26 @@
         {
             "username": "default",
             "hostname": "localhost",
-            "ip": "10.213.175.62",
+            "ip": "10.2.136.226",
             "vnodes": 4
         },
         {
             "username": "default",
             "hostname": "machine2",
-            "ip": "10.213.175.161",
-            "vnodes": 4
-        },
-        {
-            "username": "default",
-            "hostname": "machine3",
-            "ip": "10.213.175.95",
+            "ip": "10.2.137.162",
             "vnodes": 4
         }
     ],
     "timeouts": {
-        "cache": 30,
-        "gossip": 10,
-        "ping_down_node": 5,
-        "replicate_sync": 10,
-        "replicated": 30
+        "cache": 10,
+        "gossip": 3,
+        "ping_down_node": 2,
+        "replicate_sync": 5,
+        "replicated": 15
     },
     "quorum": {
         "N": 6,
-        "R": 5,
+        "R": 4,
         "W": 3
     },
     "retries": {
