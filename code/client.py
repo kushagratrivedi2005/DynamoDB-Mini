@@ -311,7 +311,7 @@ class Client(rpyc.Service):
                     vc = self.cache[node]['vector_clock'] 
                     url = (vc.ip, vc.port) 
                     # Connect with 3-second socket timeout to fail fast on blocked ports
-                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 1})
                     res = conn.root.exposed_get(key)
                     print (f"Response : {res['status']}")
                     
@@ -350,7 +350,7 @@ class Client(rpyc.Service):
                     print (f"URL = {url}")
 
                     # Connect with 3-second socket timeout to fail fast on blocked ports
-                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 1})
                     res = conn.root.exposed_put(key, value)
                     print (f"Response : {res['status']}")
                     if res["status"] == self.SUCCESS: 
