@@ -26,29 +26,6 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 import utils.config as config
 
-def setup_downtable_logger():
-    """Sets up a specific logger for downtable changes"""
-    logger = logging.getLogger('downtable_logger')
-    logger.setLevel(logging.INFO)
-    
-    # Create logs directory if it doesn't exist
-    logs_dir = os.path.join(dirname(abspath(__file__)), '..', 'logs')
-    if not os.path.exists(logs_dir):
-        os.makedirs(logs_dir)
-        
-    # File handler
-    handler = logging.FileHandler(os.path.join(logs_dir, 'downtable.log'))
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
-    handler.setFormatter(formatter)
-    
-    # Avoid adding multiple handlers if function is called multiple times
-    if not logger.handlers:
-        logger.addHandler(handler)
-        
-    return logger
-
-downtable_logger = setup_downtable_logger()
-
 logging.basicConfig(level=logging.DEBUG)
 
 '''
@@ -117,7 +94,6 @@ class Worker(rpyc.Service):
         self.hash_ring_url = ('localhost', 3000) # hash ring 
         self.routing_table = dict() #* Will store the routing table of active nodes
         self.down_routing_table = dict() #* Will store all those entry which are down now
-        downtable_logger.info(f"[Node {self.port}] Initialized. Downtable empty.")
         self.hash_function = (lambda key: int(md5(str(key).encode("utf-8")).hexdigest(), 16)) # same hash function is used in hashring
         self.requests_log = dict() # Used by background thread which will keep sending the data to these nodes (to satisfy replica property)
         self.get_requests_log = dict() # response_id -> (fresh_value, fresh_timestamp)
@@ -502,7 +478,6 @@ class Worker(rpyc.Service):
                     logging.debug ("\nREMOVE FROM DOWN NODE: ", node)
                     self.lock_down_routing_table.acquire()
                     del self.down_routing_table[str(node)]
-                    downtable_logger.info(f"[Node {self.port}] Node {node} recovered. Removing from downtable.")
                     self.lock_down_routing_table.release()
                     logging.debug ("\nADDING TO ACTIVE NODE: ", node)
                     self.lock_routing_table.acquire()
@@ -525,7 +500,6 @@ class Worker(rpyc.Service):
                     self.lock_down_routing_table.acquire()
                     # vc.version_number += 1
                     self.down_routing_table[str(node)] = vc
-                    downtable_logger.info(f"[Node {self.port}] Node {node} failed ping. Adding to downtable.")
                     self.lock_down_routing_table.release()
 
                     # Handle the range updates
@@ -601,7 +575,6 @@ class Worker(rpyc.Service):
                         # Only add to down table after verifying it's actually unreachable
                         if not self.ping(vc.ip, vc.port, timeout=1):
                             self.down_routing_table[node] = vc
-                            downtable_logger.info(f"[Node {self.port}] Node {node} marked down via gossip (verified unreachable).")
                             new_down += 1
                     
                     if new_active > 0 or new_down > 0:
@@ -804,7 +777,6 @@ class Worker(rpyc.Service):
             elif down_routing_table[node].version_number > self.down_routing_table[node].version_number:
                 self.lock_down_routing_table.acquire()
                 self.down_routing_table[node] = down_routing_table[node]    
-                downtable_logger.info(f"[Node {self.port}] Updated downtable entry for {node} from gossip (newer version).")
                 self.lock_down_routing_table.release()    
         '''
         A fresh entry which I haven't seen before
@@ -821,7 +793,6 @@ class Worker(rpyc.Service):
             if node not in self_active_nodes:
                 self.lock_down_routing_table.acquire()
                 self.down_routing_table[node] = down_routing_table[node]
-                downtable_logger.info(f"[Node {self.port}] Added new downtable entry for {node} from gossip.")
                 self.lock_down_routing_table.release()
         '''
         A fresh entry which guest haven't seen before 
@@ -846,7 +817,7 @@ class Worker(rpyc.Service):
         return (gift_routing_table, gift_down_routing_table, list(ask_guest_to_ping))
 
     '''
-    This function is called by client for getting the appropriate routing
+    This function will be called by client for getting the appropriate routing
     tables.
     '''
     def exposed_fetch_routing_info(self, key:str, need_serialized=True):
@@ -1138,7 +1109,9 @@ class Worker(rpyc.Service):
                 vc = self.routing_table[node]
                 quorum_nodes.append(f"{vc.ip}:{vc.port}")
         
-        with open("logs/quorum.log", "a") as qlog:
+        # Use absolute path for logs
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+        with open(os.path.join(log_dir, "quorum.log"), "a") as qlog:
             qlog.write(f"[GET] key={key} | nodes={quorum_nodes}\n")
         for node in replica_nodes:
             if node in self.routing_table.keys():
@@ -1187,12 +1160,7 @@ class Worker(rpyc.Service):
             # Primary's data is already counted in count_responses, don't query it again
             responses = []
             reachable_count = 0
-            # Shuffle nodes to avoid getting stuck behind multiple sequential down nodes
-            # This ensures we don't wait 3s+3s+3s+3s for a down machine before contacting a healthy one
-            replica_node_keys = list(replica_nodes.keys())
-            random.shuffle(replica_node_keys)
-            
-            for node in replica_node_keys:
+            for node in replica_nodes:
                 # Skip self - we already counted primary's data above
                 if node == self.end_of_range:
                     continue
@@ -1220,7 +1188,7 @@ class Worker(rpyc.Service):
                     reachable_count += 1
                     try:
                         print("Connection is happening at: ",self.routing_table[list(self.routing_table.keys())[0]], self.routing_table[list(self.routing_table.keys())[0]].ip, self.routing_table[list(self.routing_table.keys())[0]].port)
-                        conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 2, 'connect_timeout': 2})
+                        conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
                         async_func = rpyc.async_(conn.root.get_key)
                         res = async_func(key, request_id)
                         res.add_callback(callback)
@@ -1356,7 +1324,9 @@ class Worker(rpyc.Service):
             for node, vc in replica_nodes.items():
                 if node == self.end_of_range or node in self.routing_table or (node in self.down_routing_table and self.ping(vc.ip, vc.port, timeout=1)):
                     quorum_nodes.append(f"{vc.ip}:{vc.port}")
-            with open("logs/quorum.log", "a") as qlog:
+            # Use absolute path for logs
+            log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+            with open(os.path.join(log_dir, "quorum.log"), "a") as qlog:
                 qlog.write(f"[PUT] key={key} value={value} | nodes={quorum_nodes}\n")
             
             reachable_count = 1  # Primary counts as 1 write (already done to Redis)
@@ -1408,13 +1378,10 @@ class Worker(rpyc.Service):
                 return {"status": self.FAILURE, "msg": f"Not enough nodes for write quorum (need {self.WRITE}, have {reachable_count})", "replica_nodes": replica_nodes, "controller_node": controller_node}
             
             responses = []
-            # Shuffle nodes to avoid getting stuck behind multiple sequential down nodes
-            # This ensures we don't wait 3s+3s+3s+3s for a down machine before contacting a healthy one
-            random.shuffle(reachable_replicas)
             for node in reachable_replicas:  # Only try to connect to reachable replicas
                 vc = replica_nodes[node]
                 try:
-                    conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 2, 'connect_timeout': 2})
+                    conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
                     async_func = rpyc.async_(conn.root.replicated_put)
                     res = async_func(key, value, request_id, timestamp)
                     res.add_callback(callback)
@@ -1520,3 +1487,4 @@ if __name__ == '__main__':
     redis_port = int(6379)
     logging.debug (f"Listenting worker at {port} on all interfaces (0.0.0.0)...")
     ThreadedServer(Worker(port, redis_port), hostname='0.0.0.0', port=port, protocol_config={'allow_public_attrs': True}).start()
+    

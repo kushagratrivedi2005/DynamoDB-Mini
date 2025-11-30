@@ -322,7 +322,6 @@ class Client(rpyc.Service):
                         break_reason = self.INVALID_RESOURCE
                         # break
                 except Exception as e:
-                    logging.error(f"Client failed to connect to primary {url} for GET {key}: {e}")
                     print ("Some thing bad happen ", e)
                     pass 
             if break_reason == self.INVALID_RESOURCE: 
@@ -361,8 +360,7 @@ class Client(rpyc.Service):
                         break_reason = self.INVALID_RESOURCE
                         # break
                 except Exception as e:
-                    logging.error(f"Client failed to connect to primary {url} for PUT {key}: {e}")
-                    print (f"Expection in client put {e}")
+                    print ("Expection in client put", e)
                     pass 
             if break_reason == self.INVALID_RESOURCE: 
                 self.update_cache(key, res["replica_nodes"], res["controller_node"])

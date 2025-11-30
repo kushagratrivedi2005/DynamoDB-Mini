@@ -12,19 +12,19 @@
             "username": "default",
             "hostname": "localhost",
             "ip": "10.2.136.226",
-            "vnodes": 5
+            "vnodes": 4
         },
         {
             "username": "default",
             "hostname": "machine2",
             "ip": "10.2.137.162",
-            "vnodes": 5
+            "vnodes": 4
         },
         {
             "username": "default",
             "hostname": "machine3",
-            "ip": "10.2.128.204",
-            "vnodes": 5
+            "ip": "10.2.133.235",
+            "vnodes": 4
         }
     ],
     "timeouts": {
