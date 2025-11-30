@@ -3,9 +3,32 @@
 # Generic Secondary Node Setup Script
 # Usage: ./start_secondarynode.sh --machine2
 #        ./start_secondarynode.sh --machine3
-#        etc.
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# --- FUNCTION DEFINITION ADDED HERE ---
+open_tab() {
+    local title="$1"
+    local cmd="$2"
+    
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS - use osascript
+        osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; $cmd\""
+    elif command -v gnome-terminal &> /dev/null; then
+        # Linux - gnome-terminal
+        gnome-terminal --tab --title="$title" -- bash -c "cd '$PROJECT_DIR'; $cmd; exec bash" &
+    elif command -v xterm &> /dev/null; then
+        # Linux - xterm
+        xterm -T "$title" -e "cd '$PROJECT_DIR'; $cmd; exec bash" &
+    elif command -v konsole &> /dev/null; then
+        # Linux - konsole
+        konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; $cmd; exec bash\"" &
+    else
+        echo "No supported terminal found. Please run manually:"
+        echo "cd '$PROJECT_DIR' && $cmd"
+    fi
+}
+# --------------------------------------
 
 # Parse arguments
 MACHINE_NAME=""
@@ -19,7 +42,6 @@ done
 if [ -z "$MACHINE_NAME" ]; then
     echo "Error: Machine name not specified"
     echo "Usage: $0 --machine2|--machine3|--machine4|..."
-    echo "Example: $0 --machine2"
     exit 1
 fi
 
@@ -33,7 +55,11 @@ echo ""
 
 # Check if we're on the right machine
 echo "Detected IP addresses:"
-ip addr show | grep "inet " | grep -v "127.0.0.1" | awk '{print "  - " $2}'
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    ifconfig | grep "inet " | grep -v "127.0.0.1" | awk '{print "  - " $2}'
+else
+    ip addr show | grep "inet " | grep -v "127.0.0.1" | awk '{print "  - " $2}'
+fi
 echo ""
 
 # Get expected IP from config
@@ -132,26 +158,12 @@ echo "Opening additional terminals..."
 
 # Terminal 1: Network Control (Partition/Heal)
 echo "1. Opening Network Control terminal..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS - use osascript
-    osascript -e "tell application \"Terminal\" to do script \"cd '$PROJECT_DIR'; python3 test/secondary_network_control.py\""
-elif command -v gnome-terminal &> /dev/null; then
-    # Linux - gnome-terminal
-    gnome-terminal --tab --title="Network Control" -- bash -c "cd '$PROJECT_DIR'; python3 test/secondary_network_control.py; exec bash" &
-elif command -v xterm &> /dev/null; then
-    # Linux - xterm
-    xterm -T "Network Control" -e "cd '$PROJECT_DIR'; python3 test/secondary_network_control.py; exec bash" &
-elif command -v konsole &> /dev/null; then
-    # Linux - konsole
-    konsole --new-tab -e "bash -c \"cd '$PROJECT_DIR'; python3 test/secondary_network_control.py; exec bash\"" &
-else
-    echo "No supported terminal found. Please run manually:"
-    echo "cd '$PROJECT_DIR' && python3 test/secondary_network_control.py"
-fi
+open_tab "Network Control" "python3 test/secondary_network_control.py"
 sleep 1
 
 # Terminal 2: Worker Logs Monitor
 echo "2. Opening Worker Logs terminal..."
+# This now uses the open_tab function defined at the top
 open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f /tmp/worker_3200.log ]; do sleep 2; echo 'Still waiting for allocation from Machine 1...'; done; echo 'Workers detected! Monitoring logs...'; tail -f /tmp/worker_*.log"
 
 echo ""
