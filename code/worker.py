@@ -566,7 +566,18 @@ class Worker(rpyc.Service):
                             self.routing_table[node] = vc
                             new_active += 1
                     for node, vc in gift_down_routing_table.items():
-                        if node not in self.down_routing_table.keys():
+                        # Don't blindly accept down information - verify if node is actually down
+                        # Skip if node is on same machine as self (we know we're alive!)
+                        if vc.ip == self.ip:
+                            continue
+                        # Skip if already in our down_routing_table
+                        if node in self.down_routing_table.keys():
+                            continue
+                        # Skip if node is currently in our active routing_table (we know it's up)
+                        if node in self.routing_table.keys():
+                            continue
+                        # Only add to down table after verifying it's actually unreachable
+                        if not self.ping(vc.ip, vc.port, timeout=1):
                             self.down_routing_table[node] = vc
                             new_down += 1
                     
@@ -1147,10 +1158,29 @@ class Worker(rpyc.Service):
                 # Skip self - we already counted primary's data above
                 if node == self.end_of_range:
                     continue
+                    
+                vc = replica_nodes[node]
+                is_reachable = False
+                
                 if node in self.routing_table.keys():
+                    is_reachable = True
+                elif node in self.down_routing_table:
+                    # Node marked down, check if it's actually back up
+                    if self.ping(vc.ip, vc.port, timeout=1):
+                        print(f"  ⚡ {node} -> {vc.ip}:{vc.port} (was down, NOW RECOVERED)")
+                        # Move from down to active immediately
+                        self.lock_down_routing_table.acquire()
+                        if node in self.down_routing_table:
+                            del self.down_routing_table[node]
+                        self.lock_down_routing_table.release()
+                        self.lock_routing_table.acquire()
+                        self.routing_table[node] = vc
+                        self.lock_routing_table.release()
+                        is_reachable = True
+                
+                if is_reachable:
                     reachable_count += 1
                     try:
-                        vc = self.routing_table[node]
                         print("Connection is happening at: ",self.routing_table[list(self.routing_table.keys())[0]], self.routing_table[list(self.routing_table.keys())[0]].ip, self.routing_table[list(self.routing_table.keys())[0]].port)
                         conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
                         async_func = rpyc.async_(conn.root.get_key)
@@ -1296,6 +1326,23 @@ class Worker(rpyc.Service):
                     reachable_replicas.append(node)
                     reachable_count += 1
                     print(f"  ✓ {node} -> {vc.ip}:{vc.port} (reachable replica)")
+                elif node in self.down_routing_table:
+                    # Node is marked down, but check if it's actually back up now
+                    if self.ping(vc.ip, vc.port, timeout=1):
+                        print(f"  ✓ {node} -> {vc.ip}:{vc.port} (was down, NOW RECOVERED - moving to active)")
+                        # Move from down to active immediately
+                        self.lock_down_routing_table.acquire()
+                        if node in self.down_routing_table:
+                            del self.down_routing_table[node]
+                        self.lock_down_routing_table.release()
+                        self.lock_routing_table.acquire()
+                        self.routing_table[node] = vc
+                        self.lock_routing_table.release()
+                        reachable_replicas.append(node)
+                        reachable_count += 1
+                    else:
+                        unreachable_replicas.append(node)
+                        print(f"  ✗ {node} -> {vc.ip}:{vc.port} (DOWN - confirmed unreachable)")
                 else:
                     unreachable_replicas.append(node)
                     print(f"  ✗ {node} -> {vc.ip}:{vc.port} (UNREACHABLE - not in routing table)")
