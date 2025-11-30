@@ -1139,11 +1139,14 @@ class Worker(rpyc.Service):
                 except Exception as e:
                     logging.debug ("Something bad happen in exposed_get ", e)
             
-            # Send GET requests to all reachable replica nodes
-            # Don't pre-check count - let actual responses determine if we have enough data
+            # Send GET requests to all reachable replica nodes (EXCEPT primary/self)
+            # Primary's data is already counted in count_responses, don't query it again
             responses = []
             reachable_count = 0
             for node in replica_nodes:
+                # Skip self - we already counted primary's data above
+                if node == self.end_of_range:
+                    continue
                 if node in self.routing_table.keys():
                     reachable_count += 1
                     try:
@@ -1161,30 +1164,32 @@ class Worker(rpyc.Service):
             print(f"GET: Sent {len(responses)} async requests to reachable nodes")
             logging.debug(f"GET: Sent requests to {len(responses)} reachable nodes (out of {len(replica_nodes)} replicas)")
             
-            # If we can't possibly get R responses (account for primary's data if it exists), fail early
-            total_possible_reads = count_responses + reachable_count  # primary (if has data) + replicas
-            if total_possible_reads < self.READ:
-                print(f"\n❌ GET FAILED: Not enough nodes with potential data!")
-                print(f"   Primary: {count_responses}, Reachable replicas: {reachable_count}")
-                print(f"   Total possible: {total_possible_reads} < Required: {self.READ}")
-                print(f"{'='*60}\n")
-                logging.debug(f"GET FAILED: Not enough nodes ({total_possible_reads} < {self.READ})")
-                return {"status": self.FAILURE, "msg": f"Not enough reachable nodes for read quorum (need {self.READ}, have {total_possible_reads} max)", "replica_nodes": replica_nodes, "controller_node": controller_node}
-            
-            print(f"Waiting for responses... (need {self.READ} successful reads)")
+            # DynamoDB semantics: Only count nodes that ACTUALLY have data
+            # Don't fail early based on topology - let responses determine if enough nodes have data
+            print(f"Waiting for responses... (need {self.READ} nodes WITH DATA)")
             logging.debug ("Waiting for get...")
 
-            # wait_for_responses will count only nodes that successfully return data
-            # We need R-count_responses more reads (since primary may have already contributed)
-            needed_replica_reads = max(0, self.READ - count_responses)
-            print(f"Waiting for {needed_replica_reads} more successful reads (already have {count_responses} from primary)")
+            # DynamoDB semantics: Count only nodes that ACTUALLY have data
+            # Primary already checked - count_responses = 1 if has data, 0 if not
+            # Now wait for replicas to respond with data
+            needed_replica_reads = self.READ - count_responses
+            print(f"Primary contribution: {count_responses} {'(has data)' if count_responses > 0 else '(no data)'}")
+            print(f"Need {needed_replica_reads} more successful reads from replicas (total R={self.READ})")
             
-            if needed_replica_reads > 0:
+            if count_responses >= self.READ:
+                # Primary data alone satisfies R quorum (e.g., R=1 and primary has it)
+                waiting = {'status': self.SUCCESS}
+                logging.debug("Primary data alone satisfies R quorum")
+            elif len(responses) == 0:
+                # No replicas to query and primary doesn't satisfy R alone
+                waiting = {'status': self.FAILURE}
+                logging.debug("No replicas available and primary doesn't satisfy R")
+            else:
+                # Wait for replica responses - callback increments count_responses for each with data
+                # wait_for_responses checks responses[] only, doesn't know about primary
+                # So we pass needed_replica_reads (how many MORE we need beyond primary)
                 waiting = self.wait_for_responses(responses, needed_replica_reads, 'GET')
                 logging.debug ("Wait done..")
-            else:
-                # Primary data alone satisfies R quorum (e.g., R=1)
-                waiting = {'status': self.SUCCESS}
             
             successful_reads = self.get_requests_log[request_id]['count_responses']
             print(f"\nGET Result: {successful_reads} total successful reads (need {self.READ})")
