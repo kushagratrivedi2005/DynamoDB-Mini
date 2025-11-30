@@ -26,6 +26,29 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 import utils.config as config
 
+def setup_downtable_logger():
+    """Sets up a specific logger for downtable changes"""
+    logger = logging.getLogger('downtable_logger')
+    logger.setLevel(logging.INFO)
+    
+    # Create logs directory if it doesn't exist
+    logs_dir = os.path.join(dirname(abspath(__file__)), '..', 'logs')
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+        
+    # File handler
+    handler = logging.FileHandler(os.path.join(logs_dir, 'downtable.log'))
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    handler.setFormatter(formatter)
+    
+    # Avoid adding multiple handlers if function is called multiple times
+    if not logger.handlers:
+        logger.addHandler(handler)
+        
+    return logger
+
+downtable_logger = setup_dowtable_logger()
+
 logging.basicConfig(level=logging.DEBUG)
 
 '''
@@ -94,6 +117,7 @@ class Worker(rpyc.Service):
         self.hash_ring_url = ('localhost', 3000) # hash ring 
         self.routing_table = dict() #* Will store the routing table of active nodes
         self.down_routing_table = dict() #* Will store all those entry which are down now
+        downtable_logger.info(f"[Node {self.port}] Initialized. Downtable empty.")
         self.hash_function = (lambda key: int(md5(str(key).encode("utf-8")).hexdigest(), 16)) # same hash function is used in hashring
         self.requests_log = dict() # Used by background thread which will keep sending the data to these nodes (to satisfy replica property)
         self.get_requests_log = dict() # response_id -> (fresh_value, fresh_timestamp)
@@ -817,7 +841,7 @@ class Worker(rpyc.Service):
         return (gift_routing_table, gift_down_routing_table, list(ask_guest_to_ping))
 
     '''
-    This function will be called by client for getting the appropriate routing
+    This function is called by client for getting the appropriate routing
     tables.
     '''
     def exposed_fetch_routing_info(self, key:str, need_serialized=True):
@@ -1487,4 +1511,3 @@ if __name__ == '__main__':
     redis_port = int(6379)
     logging.debug (f"Listenting worker at {port} on all interfaces (0.0.0.0)...")
     ThreadedServer(Worker(port, redis_port), hostname='0.0.0.0', port=port, protocol_config={'allow_public_attrs': True}).start()
-    

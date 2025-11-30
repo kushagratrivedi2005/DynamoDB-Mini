@@ -108,6 +108,10 @@ open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f log
 echo "6. Opening Quorum Events Monitor..."
 open_tab "Quorum Events" "echo 'Waiting for quorum events...'; while [ ! -f logs/quorum.log ]; do sleep 2; done; echo 'Monitoring quorum decisions...'; tail -f logs/quorum.log"
 
+# Terminal 7: Downtable Log
+echo "7. Opening Downtable Log Monitor..."
+open_tab "Downtable Log" "echo 'Waiting for downtable.log...'; while [ ! -f logs/downtable.log ]; do sleep 2; done; echo 'Monitoring node failures/recoveries...'; tail -f logs/downtable.log"
+
 echo ""
 echo "=========================================="
 echo "  Machine 1 Started Successfully!"

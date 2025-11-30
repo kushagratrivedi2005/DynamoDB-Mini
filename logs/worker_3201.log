@@ -1,0 +1,1628 @@
+DEBUG:root:Listenting worker at 3201 on all interfaces (0.0.0.0)...
+INFO:WORKER/3201:server started on [0.0.0.0]:3201
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Not enough nodes for replicas to do chit chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Not enough nodes for replicas to do chit chat
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Not enough nodes for replicas to do chit chat
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.136.226', 61269) with fd 4
+INFO:WORKER/3201:welcome ('10.2.136.226', 61269)
+DEBUG:root:NEW NODE ADDED IN RING...
+DEBUG:root:
+A NEW NODE IS FETCHING KEYS...
+DEBUG:root:all nodes: [('10.2.136.226', 3201, 1), ('10.2.137.162', 3200, 0), ('10.2.136.226', 3202, 2), ('10.2.133.235', 3200, 0), ('10.2.136.226', 3203, 3), ('10.2.137.162', 3203, 3), ('10.2.137.162', 3202, 2), ('10.2.137.162', 3201, 1), ('10.2.136.226', 3200, 0)]
+DEBUG:root:Fetching from 10.2.136.226, 3201
+DEBUG:root:Fetching keys..
+All keys fetched: {}
+DEBUG:root:Succefully bring all the keys
+INFO:WORKER/3201:accepted ('10.2.133.235', 55819) with fd 9
+INFO:WORKER/3201:welcome ('10.2.133.235', 55819)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.136.226', 61272) with fd 10
+INFO:WORKER/3201:welcome ('10.2.136.226', 61272)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61272)
+INFO:WORKER/3201:accepted ('10.2.133.235', 55824) with fd 11
+INFO:WORKER/3201:welcome ('10.2.133.235', 55824)
+INFO:WORKER/3201:accepted ('10.2.133.235', 55825) with fd 5
+INFO:WORKER/3201:welcome ('10.2.133.235', 55825)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55819)
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 55833) with fd 13
+INFO:WORKER/3201:welcome ('10.2.133.235', 55833)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.136.226', 61287) with fd 14
+INFO:WORKER/3201:welcome ('10.2.136.226', 61287)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.136.226', 61289) with fd 16
+INFO:WORKER/3201:welcome ('10.2.136.226', 61289)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55833)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.136.226', 61291) with fd 9
+INFO:WORKER/3201:welcome ('10.2.136.226', 61291)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.136.226', 61295) with fd 17
+INFO:WORKER/3201:welcome ('10.2.136.226', 61295)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61295)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61287)
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:accepted ('10.2.133.235', 55853) with fd 13
+INFO:WORKER/3201:welcome ('10.2.133.235', 55853)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55853)
+INFO:WORKER/3201:accepted ('10.2.137.162', 33672) with fd 13
+INFO:WORKER/3201:welcome ('10.2.137.162', 33672)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 33674) with fd 20
+INFO:WORKER/3201:welcome ('10.2.137.162', 33674)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 43234) with fd 22
+INFO:WORKER/3201:welcome ('10.2.137.162', 43234)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.137.162', 33674)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 55935) with fd 23
+INFO:WORKER/3201:welcome ('10.2.133.235', 55935)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 55939) with fd 25
+INFO:WORKER/3201:welcome ('10.2.133.235', 55939)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:accepted ('10.2.133.235', 55950) with fd 27
+INFO:WORKER/3201:welcome ('10.2.133.235', 55950)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 55951) with fd 28
+INFO:WORKER/3201:welcome ('10.2.133.235', 55951)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.133.235', 55953) with fd 30
+INFO:WORKER/3201:welcome ('10.2.133.235', 55953)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55951)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55953)
+INFO:WORKER/3201:accepted ('10.2.136.226', 61364) with fd 17
+INFO:WORKER/3201:welcome ('10.2.136.226', 61364)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.133.235', 55978) with fd 30
+INFO:WORKER/3201:welcome ('10.2.133.235', 55978)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61364)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 55984) with fd 32
+INFO:WORKER/3201:welcome ('10.2.133.235', 55984)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.136.226', 61375) with fd 33
+INFO:WORKER/3201:welcome ('10.2.136.226', 61375)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 43234)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55978)
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.136.226', 61391) with fd 29
+INFO:WORKER/3201:welcome ('10.2.136.226', 61391)
+DEBUG:root:Fetching from redis....
+INFO:WORKER/3201:accepted ('10.2.136.226', 61392) with fd 35
+INFO:WORKER/3201:welcome ('10.2.136.226', 61392)
+DEBUG:root:DONE with Fetching
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.133.235', 55999) with fd 37
+INFO:WORKER/3201:welcome ('10.2.133.235', 55999)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 39472) with fd 38
+INFO:WORKER/3201:welcome ('10.2.137.162', 39472)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56006) with fd 30
+INFO:WORKER/3201:welcome ('10.2.133.235', 56006)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 53382) with fd 42
+INFO:WORKER/3201:welcome ('10.2.137.162', 53382)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56017) with fd 44
+INFO:WORKER/3201:welcome ('10.2.133.235', 56017)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 53384) with fd 40
+INFO:WORKER/3201:welcome ('10.2.137.162', 53384)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 53386) with fd 46
+INFO:WORKER/3201:welcome ('10.2.137.162', 53386)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:accepted ('10.2.137.162', 53390) with fd 49
+INFO:WORKER/3201:welcome ('10.2.137.162', 53390)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 53406) with fd 50
+INFO:WORKER/3201:welcome ('10.2.137.162', 53406)
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 56033) with fd 51
+INFO:WORKER/3201:welcome ('10.2.133.235', 56033)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 33854) with fd 52
+INFO:WORKER/3201:welcome ('10.2.137.162', 33854)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.137.162', 39472)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 53384)
+INFO:WORKER/3201:accepted ('10.2.137.162', 33870) with fd 38
+INFO:WORKER/3201:welcome ('10.2.137.162', 33870)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61289)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61375)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 33854)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 53386)
+INFO:WORKER/3201:accepted ('10.2.136.226', 61450) with fd 40
+INFO:WORKER/3201:welcome ('10.2.136.226', 61450)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56033)
+INFO:WORKER/3201:accepted ('10.2.137.162', 33876) with fd 33
+INFO:WORKER/3201:welcome ('10.2.137.162', 33876)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 33884) with fd 51
+INFO:WORKER/3201:welcome ('10.2.137.162', 33884)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61450)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 47620) with fd 52
+INFO:WORKER/3201:welcome ('10.2.137.162', 47620)
+INFO:WORKER/3201:accepted ('10.2.136.226', 61461) with fd 53
+INFO:WORKER/3201:welcome ('10.2.136.226', 61461)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.136.226', 61462) with fd 54
+INFO:WORKER/3201:welcome ('10.2.136.226', 61462)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61392)
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56006)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61291)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61391)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.136.226', 61490) with fd 29
+INFO:WORKER/3201:welcome ('10.2.136.226', 61490)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 33876)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61461)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55939)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55999)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55935)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 47620)
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61490)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 33884)
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55950)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 55984)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56017)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 33870)
+INFO:WORKER/3201:accepted ('10.2.136.226', 61522) with fd 18
+INFO:WORKER/3201:welcome ('10.2.136.226', 61522)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 35434) with fd 20
+INFO:WORKER/3201:welcome ('10.2.137.162', 35434)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.136.226', 61531) with fd 21
+INFO:WORKER/3201:welcome ('10.2.136.226', 61531)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.136.226', 61533) with fd 12
+INFO:WORKER/3201:welcome ('10.2.136.226', 61533)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.136.226', 61522)
+INFO:WORKER/3201:accepted ('10.2.133.235', 56112) with fd 16
+INFO:WORKER/3201:welcome ('10.2.133.235', 56112)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56117) with fd 22
+INFO:WORKER/3201:welcome ('10.2.133.235', 56117)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56112)
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.133.235', 56129) with fd 15
+INFO:WORKER/3201:welcome ('10.2.133.235', 56129)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.136.226', 61560) with fd 25
+INFO:WORKER/3201:welcome ('10.2.136.226', 61560)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56117)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56129)
+INFO:WORKER/3201:accepted ('10.2.133.235', 56136) with fd 15
+INFO:WORKER/3201:welcome ('10.2.133.235', 56136)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 35434)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 57560) with fd 27
+INFO:WORKER/3201:welcome ('10.2.137.162', 57560)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:accepted ('10.2.137.162', 44760) with fd 30
+INFO:WORKER/3201:welcome ('10.2.137.162', 44760)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 44764) with fd 31
+INFO:WORKER/3201:welcome ('10.2.137.162', 44764)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 44766) with fd 14
+INFO:WORKER/3201:welcome ('10.2.137.162', 44766)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 44768) with fd 22
+INFO:WORKER/3201:welcome ('10.2.137.162', 44768)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 44780) with fd 34
+INFO:WORKER/3201:welcome ('10.2.137.162', 44780)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.133.235', 56180) with fd 36
+INFO:WORKER/3201:welcome ('10.2.133.235', 56180)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:goodbye ('10.2.137.162', 44760)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 44768)
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 36924) with fd 22
+INFO:WORKER/3201:welcome ('10.2.137.162', 36924)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 44766)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 57560)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 44780)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 36940) with fd 16
+INFO:WORKER/3201:welcome ('10.2.137.162', 36940)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 44764)
+INFO:WORKER/3201:accepted ('10.2.137.162', 48140) with fd 31
+INFO:WORKER/3201:welcome ('10.2.137.162', 48140)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 48142) with fd 38
+INFO:WORKER/3201:welcome ('10.2.137.162', 48142)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.133.235', 56223) with fd 39
+INFO:WORKER/3201:welcome ('10.2.133.235', 56223)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56223)
+INFO:WORKER/3201:accepted ('10.2.137.162', 40946) with fd 30
+INFO:WORKER/3201:welcome ('10.2.137.162', 40946)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56241) with fd 40
+INFO:WORKER/3201:welcome ('10.2.133.235', 56241)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 48140)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 40946)
+INFO:WORKER/3201:accepted ('10.2.133.235', 56248) with fd 30
+INFO:WORKER/3201:welcome ('10.2.133.235', 56248)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.133.235', 56249) with fd 31
+INFO:WORKER/3201:welcome ('10.2.133.235', 56249)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56251) with fd 43
+INFO:WORKER/3201:welcome ('10.2.133.235', 56251)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 51712) with fd 44
+INFO:WORKER/3201:welcome ('10.2.137.162', 51712)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56241)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56249)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56251)
+INFO:WORKER/3201:accepted ('10.2.137.162', 51726) with fd 27
+INFO:WORKER/3201:welcome ('10.2.137.162', 51726)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56248)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 36940)
+INFO:WORKER/3201:accepted ('10.2.133.235', 56267) with fd 30
+INFO:WORKER/3201:welcome ('10.2.133.235', 56267)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.133.235', 56268) with fd 40
+INFO:WORKER/3201:welcome ('10.2.133.235', 56268)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 56042) with fd 16
+INFO:WORKER/3201:welcome ('10.2.137.162', 56042)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 51712)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 48142)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 56050) with fd 38
+INFO:WORKER/3201:welcome ('10.2.137.162', 56050)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56268)
+INFO:WORKER/3201:accepted ('10.2.137.162', 56066) with fd 40
+INFO:WORKER/3201:welcome ('10.2.137.162', 56066)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 56068) with fd 44
+INFO:WORKER/3201:welcome ('10.2.137.162', 56068)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56267)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 40214) with fd 48
+INFO:WORKER/3201:welcome ('10.2.137.162', 40214)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 40222) with fd 55
+INFO:WORKER/3201:welcome ('10.2.137.162', 40222)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:goodbye ('10.2.137.162', 56050)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 51726)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 56066)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 56042)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56322) with fd 30
+INFO:WORKER/3201:welcome ('10.2.133.235', 56322)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 36472) with fd 38
+INFO:WORKER/3201:welcome ('10.2.137.162', 36472)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 56068)
+INFO:WORKER/3201:accepted ('10.2.137.162', 36488) with fd 40
+INFO:WORKER/3201:welcome ('10.2.137.162', 36488)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.133.235', 56329) with fd 44
+INFO:WORKER/3201:welcome ('10.2.133.235', 56329)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:accepted ('10.2.133.235', 56336) with fd 57
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56180)
+INFO:WORKER/3201:welcome ('10.2.133.235', 56336)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56136)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56329)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56336)
+INFO:WORKER/3201:accepted ('10.2.137.162', 42400) with fd 18
+INFO:WORKER/3201:welcome ('10.2.137.162', 42400)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 42402) with fd 20
+INFO:WORKER/3201:welcome ('10.2.137.162', 42402)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 42408) with fd 15
+INFO:WORKER/3201:welcome ('10.2.137.162', 42408)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 40214)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 36472)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 42402)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 53546) with fd 20
+INFO:WORKER/3201:welcome ('10.2.137.162', 53546)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+INFO:WORKER/3201:accepted ('10.2.137.162', 53558) with fd 23
+INFO:WORKER/3201:welcome ('10.2.137.162', 53558)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.137.162', 42400)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 36488)
+INFO:WORKER/3201:accepted ('10.2.137.162', 53568) with fd 18
+INFO:WORKER/3201:welcome ('10.2.137.162', 53568)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56390) with fd 27
+INFO:WORKER/3201:welcome ('10.2.133.235', 56390)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 53558)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 53568)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 56399) with fd 23
+INFO:WORKER/3201:welcome ('10.2.133.235', 56399)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 42848) with fd 28
+INFO:WORKER/3201:welcome ('10.2.137.162', 42848)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56431) with fd 33
+INFO:WORKER/3201:welcome ('10.2.133.235', 56431)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 56433) with fd 34
+INFO:WORKER/3201:welcome ('10.2.133.235', 56433)
+DEBUG:root:need to ping: by:3201: nodes = set()
+DEBUG:root:done chit-chat
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56431)
+INFO:WORKER/3201:accepted ('10.2.137.162', 43940) with fd 31
+INFO:WORKER/3201:welcome ('10.2.137.162', 43940)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56444) with fd 35
+INFO:WORKER/3201:welcome ('10.2.133.235', 56444)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 43944) with fd 36
+INFO:WORKER/3201:welcome ('10.2.137.162', 43944)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 43958) with fd 37
+INFO:WORKER/3201:welcome ('10.2.137.162', 43958)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56433)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 46012) with fd 16
+INFO:WORKER/3201:welcome ('10.2.137.162', 46012)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 43940)
+INFO:WORKER/3201:accepted ('10.2.137.162', 55498) with fd 31
+INFO:WORKER/3201:welcome ('10.2.137.162', 55498)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.137.162', 42848)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 43958)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 56468) with fd 37
+INFO:WORKER/3201:welcome ('10.2.133.235', 56468)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 55502) with fd 39
+INFO:WORKER/3201:welcome ('10.2.137.162', 55502)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 45272) with fd 28
+INFO:WORKER/3201:welcome ('10.2.137.162', 45272)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56468)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 43944)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.137.162', 45272)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 57750) with fd 28
+INFO:WORKER/3201:welcome ('10.2.137.162', 57750)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 60206) with fd 36
+INFO:WORKER/3201:welcome ('10.2.137.162', 60206)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 55502)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.136.226', 62641) with fd 37
+INFO:WORKER/3201:welcome ('10.2.136.226', 62641)
+INFO:WORKER/3201:goodbye ('10.2.136.226', 62641)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 60222) with fd 39
+INFO:WORKER/3201:welcome ('10.2.137.162', 60222)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56534) with fd 33
+INFO:WORKER/3201:welcome ('10.2.133.235', 56534)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 52630) with fd 47
+INFO:WORKER/3201:welcome ('10.2.137.162', 52630)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56534)
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 52636) with fd 33
+INFO:WORKER/3201:welcome ('10.2.137.162', 52636)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.137.162', 52636)
+INFO:WORKER/3201:accepted ('10.2.137.162', 51274) with fd 33
+INFO:WORKER/3201:welcome ('10.2.137.162', 51274)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 50620) with fd 51
+INFO:WORKER/3201:welcome ('10.2.137.162', 50620)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56573) with fd 60
+INFO:WORKER/3201:welcome ('10.2.133.235', 56573)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 41684) with fd 37
+INFO:WORKER/3201:welcome ('10.2.137.162', 41684)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56585) with fd 58
+INFO:WORKER/3201:welcome ('10.2.133.235', 56585)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56573)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 51274)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56390)
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 52630)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56598) with fd 47
+INFO:WORKER/3201:welcome ('10.2.133.235', 56598)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 35130) with fd 62
+INFO:WORKER/3201:welcome ('10.2.137.162', 35130)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56399)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56444)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56585)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56598)
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 41684)
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.137.162', 52808) with fd 48
+INFO:WORKER/3201:welcome ('10.2.137.162', 52808)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 35130)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 50620)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 52816) with fd 51
+INFO:WORKER/3201:welcome ('10.2.137.162', 52816)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 56631) with fd 17
+INFO:WORKER/3201:welcome ('10.2.133.235', 56631)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56644) with fd 23
+INFO:WORKER/3201:welcome ('10.2.133.235', 56644)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.133.235', 56646) with fd 26
+INFO:WORKER/3201:welcome ('10.2.133.235', 56646)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56631)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56699) with fd 33
+INFO:WORKER/3201:welcome ('10.2.133.235', 56699)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 60838) with fd 19
+INFO:WORKER/3201:welcome ('10.2.137.162', 60838)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 52816)
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56699)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 42464) with fd 35
+INFO:WORKER/3201:welcome ('10.2.137.162', 42464)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+INFO:WORKER/3201:accepted ('10.2.137.162', 42474) with fd 18
+INFO:WORKER/3201:welcome ('10.2.137.162', 42474)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 42474)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 36926) with fd 38
+INFO:WORKER/3201:welcome ('10.2.137.162', 36926)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 60838)
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.137.162', 44454) with fd 24
+INFO:WORKER/3201:welcome ('10.2.137.162', 44454)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56768) with fd 33
+INFO:WORKER/3201:welcome ('10.2.133.235', 56768)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56768)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56793) with fd 19
+INFO:WORKER/3201:welcome ('10.2.133.235', 56793)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:goodbye ('10.2.137.162', 36926)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 42464)
+INFO:WORKER/3201:goodbye ('10.2.137.162', 44454)
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+INFO:WORKER/3201:accepted ('10.2.133.235', 56813) with fd 35
+INFO:WORKER/3201:welcome ('10.2.133.235', 56813)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:Replicate called
+DEBUG:root:Waiting for responses...
+INFO:WORKER/3201:goodbye ('10.2.133.235', 56793)
+DEBUG:root:REPLICATE::: Success: 0, Error = 0
+DEBUG:root:Done with waiting for reponses: success
+INFO:WORKER/3201:accepted ('10.2.133.235', 56822) with fd 19
+INFO:WORKER/3201:welcome ('10.2.133.235', 56822)
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
+DEBUG:root:--------------------------------------------------
+DEBUG:root:REPLICAS ARE GETTING SYNC!...
+DEBUG:root:--------------------------------------------------
+DEBUG:root:Fetching from redis....
+DEBUG:root:DONE with Fetching
+DEBUG:root:Gifts: {} and {}
+
