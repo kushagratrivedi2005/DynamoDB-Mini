@@ -614,9 +614,11 @@ class Worker(rpyc.Service):
                             pipe.set(key, timestamp)
                         else: 
                             try:
-                                if self_keys_timestamp[key] > timestamp:
-                                    gift_keys_value[key] = self_keys_value[key]
-                                    gift_keys_timestamp[key] = self_keys_timestamp[key]
+                                # Check if key exists in self before accessing
+                                if key in self_keys_timestamp and key in self_keys_value:
+                                    if self_keys_timestamp[key] > timestamp:
+                                        gift_keys_value[key] = self_keys_value[key]
+                                        gift_keys_timestamp[key] = self_keys_timestamp[key]
                             except KeyError as e:
                                 logging.debug("Gossip KeyError for key %s: %s", key, e)
                     
