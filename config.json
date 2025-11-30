@@ -12,13 +12,13 @@
             "username": "default",
             "hostname": "localhost",
             "ip": "10.2.136.226",
-            "vnodes": 4
+            "vnodes": 2
         },
         {
             "username": "default",
             "hostname": "machine2",
             "ip": "10.2.137.162",
-            "vnodes": 4
+            "vnodes": 2
         }
     ],
     "timeouts": {
@@ -29,9 +29,9 @@
         "replicated": 15
     },
     "quorum": {
-        "N": 8,
-        "R": 4,
-        "W": 8
+        "N": 4,
+        "R": 2,
+        "W": 4
     },
     "retries": {
         "replica": 2,
