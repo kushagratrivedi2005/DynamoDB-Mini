@@ -8,7 +8,19 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 import utils.config as config
 
-logging.basicConfig(level=logging.DEBUG)
+import os
+# Ensure logs directory exists
+log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(log_dir, 'spawn_worker.log')),
+        logging.StreamHandler()
+    ]
+)
 
 
 class SpawnWorkers(rpyc.Service):
@@ -19,12 +31,18 @@ class SpawnWorkers(rpyc.Service):
         self.worker_path = f"{self.project_root}/code/worker.py"
         
     def exposed_spawn_worker(self, port, vnodes, spawn_whom='syntactic'):
+        import os
         logging.debug (f'SPAWN WORKER: Port {port}, vnodes = {vnodes}')
         logging.debug (f'Worker path: {self.worker_path}')
+        
+        # Create logs directory if it doesn't exist
+        logs_dir = f'{self.project_root}/logs'
+        os.makedirs(logs_dir, exist_ok=True)
+        
         # Always use the main worker.py file for both semantic and syntactic
         for i in range(0, vnodes):
             worker_port = port + i
-            log_file = f'{self.project_root}/logs/worker_{worker_port}.log'
+            log_file = f'{logs_dir}/worker_{worker_port}.log'
             with open(log_file, 'w') as log:
                 Popen(['python3', self.worker_path, str(worker_port)], 
                       stdout=log, stderr=log)

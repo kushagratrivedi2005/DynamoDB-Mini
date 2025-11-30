@@ -17,7 +17,19 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 import utils.config as config
 
-logging.basicConfig(level=logging.DEBUG)
+import os
+# Ensure logs directory exists
+log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(log_dir, 'client.log')),
+        logging.StreamHandler()
+    ]
+)
 
 class VectorClock:
     def __init__(self, ip:str, port:int, version_number:int, load:float, start_of_range:int) -> None:

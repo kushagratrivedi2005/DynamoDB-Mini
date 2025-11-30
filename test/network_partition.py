@@ -109,11 +109,16 @@ if __name__ == '__main__':
         # Load ports from config
         semantic_start = config.get_port('semantic_worker_start')
         syntactic_start = config.get_port('syntactic_worker_start')
-        num_vnodes = config.get_quorum('N')
-        
-        # Generate ports based on config for all nodes
-        semantic_vnodes = [semantic_start + i for i in range(num_vnodes)]
-        syntactic_vnodes = [syntactic_start + i for i in range(num_vnodes)]
+        # Get vnodes for the selected machine
+        if which_node <= len(nodes):
+            target_vnodes = nodes[which_node - 1]['vnodes']
+        else:
+            # Localhost default
+            target_vnodes = 4  # Default or fetch from config if possible
+            
+        # Generate ports based on vnodes count
+        semantic_vnodes = [semantic_start + i for i in range(target_vnodes)]
+        syntactic_vnodes = [syntactic_start + i for i in range(target_vnodes)]
         
         all_vnodes = semantic_vnodes if which_task == 1 else syntactic_vnodes
         
