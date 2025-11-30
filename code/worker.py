@@ -242,8 +242,7 @@ class Worker(rpyc.Service):
                     hostname, port, _ = node
                     url = (hostname, port)
                     logging.debug (f'Fetching from {hostname}, {port}')
-                    conn = rpyc.connect(*url) 
-                    conn._config['sync_request_timeout'] = None         
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': None, 'connect_timeout': 3})         
                     ''' Get the data from the old primary '''
                     res = conn.root.giveback_keys(self.start_of_range, self.end_of_range)
                     if res['status'] == self.SUCCESS:
@@ -373,8 +372,7 @@ class Worker(rpyc.Service):
                 
                 # Notify the node about its new range
                 try:
-                    conn = rpyc.connect(next_node.ip, next_node.port)
-                    conn._config['sync_request_timeout'] = None
+                    conn = rpyc.connect(next_node.ip, next_node.port, config={'sync_request_timeout': None, 'connect_timeout': 3})
                     
                     update_info = {
                         "new_start": failed_node.start_of_range,
@@ -438,8 +436,7 @@ class Worker(rpyc.Service):
                     
                     # Notify the current owner about its updated range
                     try:
-                        conn = rpyc.connect(current_owner.ip, current_owner.port)
-                        conn._config['sync_request_timeout'] = None
+                        conn = rpyc.connect(current_owner.ip, current_owner.port, config={'sync_request_timeout': None, 'connect_timeout': 3})
                         
                         update_info = {
                             "new_start": recovered_node_hash,
@@ -542,8 +539,7 @@ class Worker(rpyc.Service):
                 print(f"🗣️  GOSSIP: {self.ip}:{self.port} -> {node.ip}:{node.port}")
                 
                 try:
-                    conn = rpyc.connect(*url) 
-                    conn._config['sync_request_timeout'] = None 
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': None, 'connect_timeout': 3}) 
                     '''
                     We are using 2-way communication to, in first go we send
                     both our active and down routing table and then in response
@@ -678,8 +674,7 @@ class Worker(rpyc.Service):
             keys_value, keys_timestamp = self.get_keys_from_redis_by_range(start_key_range, end_key_range)
             
             try:
-                conn = rpyc.connect(ip, port)
-                conn._config['sync_request_timeout'] = None         
+                conn = rpyc.connect(ip, port, config={'sync_request_timeout': 5, 'connect_timeout': 3})         
         
                 keys_value = pickle.dumps(keys_value)
                 keys_timestamp = pickle.dumps(keys_timestamp)
@@ -1006,7 +1001,7 @@ class Worker(rpyc.Service):
             for node, requests in piggy_backing.items():
                 try:
                     ip, port = self.routing_table[node].ip, self.routing_table[node].port 
-                    conn = rpyc.connect(ip, port)
+                    conn = rpyc.connect(ip, port, config={'sync_request_timeout': 10, 'connect_timeout': 3})
                     async_func = rpyc.async_(conn.root.bulk_put)
                     res = async_func(requests)
                     res.add_callback(callback)
