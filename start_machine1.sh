@@ -93,6 +93,10 @@ sleep 2
 echo "4. Starting Test Interface..."
 open_tab "Test" "cd test && python3 test.py"
 
+# Terminal 5: Worker Logs (Monitor gossip and quorum)
+echo "5. Opening Worker Logs Monitor..."
+open_tab "Worker Logs" "echo 'Waiting for workers to start...'; sleep 3; tail -f /tmp/worker_*.log 2>/dev/null || echo 'No worker logs yet. Workers will appear after allocation.'; exec bash"
+
 echo ""
 echo "=========================================="
 echo "  Machine 1 Started Successfully!"
@@ -109,6 +113,13 @@ else
     echo "  Make sure to start Machine 2 before allocating nodes!"
 fi
 
+echo ""
+echo "Terminals Opened:"
+echo "  1. SpawnWorker - Spawns worker processes"
+echo "  2. HashRing - Coordinator for consistent hashing"
+echo "  3. Client - RPC client interface"
+echo "  4. Test - Interactive test menu"
+echo "  5. Worker Logs - Monitor gossip, quorum checks, node status"
 echo ""
 echo "Next Steps:"
 echo "----------"
@@ -127,6 +138,11 @@ echo ""
 echo "5. In Test Interface terminal:"
 echo "   → Option 2: Allocate nodes"
 echo "   → Enter: 2 (to allocate both machines)"
+echo ""
+echo "6. Watch Worker Logs terminal for:"
+echo "   → Gossip activity (🗣️)"
+echo "   → Node status changes (❌ DOWN / ✅ UP)"
+echo "   → Quorum checks during GET/PUT"
 echo ""
 echo "6. Test multi-machine quorum:"
 echo "   → Option 3: PUT data"

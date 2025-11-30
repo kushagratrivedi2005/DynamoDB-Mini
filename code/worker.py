@@ -522,9 +522,10 @@ class Worker(rpyc.Service):
     Start the gossip
     '''
     def start_gossip(self):
+        print(f"🔄 Gossip thread started on {self.ip}:{self.port} (interval: {self.GOSSIP_INTERVAL}s)")
         while True: 
             time.sleep(self.GOSSIP_INTERVAL) # Take some rest before gossip
-            self.print_routing_table()
+            # self.print_routing_table()  # Commented out - uses logging.debug, creates noise
             if (len(self.routing_table) or len(self.down_routing_table)):
                 nodes = list(self.routing_table.keys())
                 nodes.sort() # Get the nodes
@@ -1088,7 +1089,7 @@ class Worker(rpyc.Service):
         print(f"\n{'='*60}")
         print(f"GET QUORUM CHECK for key '{key}'")
         print(f"{'='*60}")
-        print(f"Total replicas (N={self.REPLICAS}): {len(replica_nodes)} nodes")
+        print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes")
         for node in replica_nodes:
             if node in self.routing_table.keys():
                 vc = self.routing_table[node]
@@ -1254,7 +1255,7 @@ class Worker(rpyc.Service):
             print(f"PUT QUORUM CHECK for key '{key}' = '{value}'")
             print(f"{'='*60}")
             print(f"Primary node: {self.end_of_range}")
-            print(f"Total replicas (N={self.REPLICAS}): {len(replica_nodes)} nodes (including primary)")
+            print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes (including primary)")
             
             reachable_replicas = []
             for node, vc in replica_nodes.items():
