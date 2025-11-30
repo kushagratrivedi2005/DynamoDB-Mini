@@ -264,7 +264,7 @@ while True:
             else:
                 node1_ip = '10.1.128.42'
                 node2_ip = '172.30.231.182'
-                legacy_choice = int(input('Which node manav(1)/pratham(2): '))
+                legacy_choice = int(input('Which node localhost(1)/legacy(2): '))
                 target_ip = node1_ip if legacy_choice == 1 else node2_ip
 
             task_type = int(input("Semantic(1) or Syntactic(2): "))
