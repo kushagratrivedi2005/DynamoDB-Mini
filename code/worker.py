@@ -1102,13 +1102,13 @@ class Worker(rpyc.Service):
         primary_has_data = (fresh_value is not None and fresh_timestamp is not None)
         print(f"Primary node: {self.end_of_range} - {'✓ HAS DATA' if primary_has_data else '✗ NO DATA'}")
         print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes")
-            quorum_nodes = []
-            for node in replica_nodes:
-                if node in self.routing_table.keys():
-                    vc = self.routing_table[node]
-                    quorum_nodes.append(f"{vc.ip}:{vc.port}")
-            with open("/tmp/quorum.log", "a") as qlog:
-                qlog.write(f"[GET] key={key} | nodes={quorum_nodes}\n")
+        quorum_nodes = []
+        for node in replica_nodes:
+            if node in self.routing_table.keys():
+                vc = self.routing_table[node]
+                quorum_nodes.append(f"{vc.ip}:{vc.port}")
+        with open("/tmp/quorum.log", "a") as qlog:
+            qlog.write(f"[GET] key={key} | nodes={quorum_nodes}\n")
         for node in replica_nodes:
             if node in self.routing_table.keys():
                 vc = self.routing_table[node]
@@ -1316,12 +1316,12 @@ class Worker(rpyc.Service):
             print(f"{'='*60}")
             print(f"Primary node: {self.end_of_range} (THIS NODE - already written to Redis)")
             print(f"Total replicas (N={self.N}): {len(replica_nodes)} nodes")
-                quorum_nodes = []
-                for node, vc in replica_nodes.items():
-                    if node == self.end_of_range or node in self.routing_table or (node in self.down_routing_table and self.ping(vc.ip, vc.port, timeout=1)):
-                        quorum_nodes.append(f"{vc.ip}:{vc.port}")
-                with open("/tmp/quorum.log", "a") as qlog:
-                    qlog.write(f"[PUT] key={key} value={value} | nodes={quorum_nodes}\n")
+            quorum_nodes = []
+            for node, vc in replica_nodes.items():
+                if node == self.end_of_range or node in self.routing_table or (node in self.down_routing_table and self.ping(vc.ip, vc.port, timeout=1)):
+                    quorum_nodes.append(f"{vc.ip}:{vc.port}")
+            with open("/tmp/quorum.log", "a") as qlog:
+                qlog.write(f"[PUT] key={key} value={value} | nodes={quorum_nodes}\n")
             
             reachable_count = 1  # Primary counts as 1 write (already done to Redis)
             reachable_replicas = []
