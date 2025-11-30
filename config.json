@@ -23,7 +23,7 @@
         {
             "username": "default",
             "hostname": "machine3",
-            "ip": "10.2.133.235",
+            "ip": "10.2.128.204",
             "vnodes": 4
         }
     ],
