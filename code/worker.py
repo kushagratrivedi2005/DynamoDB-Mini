@@ -47,7 +47,7 @@ def setup_downtable_logger():
         
     return logger
 
-downtable_logger = setup_dowtable_logger()
+downtable_logger = setup_downtable_logger()
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -1217,7 +1217,7 @@ class Worker(rpyc.Service):
                     reachable_count += 1
                     try:
                         print("Connection is happening at: ",self.routing_table[list(self.routing_table.keys())[0]], self.routing_table[list(self.routing_table.keys())[0]].ip, self.routing_table[list(self.routing_table.keys())[0]].port)
-                        conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
+                        conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 2, 'connect_timeout': 2})
                         async_func = rpyc.async_(conn.root.get_key)
                         res = async_func(key, request_id)
                         res.add_callback(callback)
@@ -1413,7 +1413,7 @@ class Worker(rpyc.Service):
             for node in reachable_replicas:  # Only try to connect to reachable replicas
                 vc = replica_nodes[node]
                 try:
-                    conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 3, 'connect_timeout': 3})
+                    conn = rpyc.connect(vc.ip, vc.port, config={'sync_request_timeout': 2, 'connect_timeout': 2})
                     async_func = rpyc.async_(conn.root.replicated_put)
                     res = async_func(key, value, request_id, timestamp)
                     res.add_callback(callback)
