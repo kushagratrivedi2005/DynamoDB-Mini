@@ -24,7 +24,7 @@ class SpawnWorkers(rpyc.Service):
         # Always use the main worker.py file for both semantic and syntactic
         for i in range(0, vnodes):
             worker_port = port + i
-            log_file = f'/tmp/worker_{worker_port}.log'
+            log_file = f'{self.project_root}/logs/worker_{worker_port}.log'
             with open(log_file, 'w') as log:
                 Popen(['python3', self.worker_path, str(worker_port)], 
                       stdout=log, stderr=log)

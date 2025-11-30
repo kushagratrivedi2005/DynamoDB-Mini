@@ -1109,7 +1109,7 @@ class Worker(rpyc.Service):
                 vc = self.routing_table[node]
                 quorum_nodes.append(f"{vc.ip}:{vc.port}")
         
-        with open("/tmp/quorum.log", "a") as qlog:
+        with open("logs/quorum.log", "a") as qlog:
             qlog.write(f"[GET] key={key} | nodes={quorum_nodes}\n")
         for node in replica_nodes:
             if node in self.routing_table.keys():
@@ -1322,7 +1322,7 @@ class Worker(rpyc.Service):
             for node, vc in replica_nodes.items():
                 if node == self.end_of_range or node in self.routing_table or (node in self.down_routing_table and self.ping(vc.ip, vc.port, timeout=1)):
                     quorum_nodes.append(f"{vc.ip}:{vc.port}")
-            with open("/tmp/quorum.log", "a") as qlog:
+            with open("logs/quorum.log", "a") as qlog:
                 qlog.write(f"[PUT] key={key} value={value} | nodes={quorum_nodes}\n")
             
             reachable_count = 1  # Primary counts as 1 write (already done to Redis)

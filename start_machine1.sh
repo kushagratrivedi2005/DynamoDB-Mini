@@ -102,11 +102,11 @@ open_tab "Test" "cd test && python3 test.py"
 
 # Terminal 5: Worker Logs (Monitor gossip and quorum)
 echo "5. Opening Worker Logs Monitor..."
-open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f /tmp/worker_3200.log ]; do sleep 2; echo 'Waiting for node allocation...'; done; echo 'Workers detected! Monitoring logs...'; tail -f /tmp/worker_*.log"
+open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f logs/worker_3200.log ]; do sleep 2; echo 'Waiting for node allocation...'; done; echo 'Workers detected! Monitoring logs...'; tail -f logs/worker_*.log"
 
 # Terminal 6: Quorum Events (GET/PUT)
 echo "6. Opening Quorum Events Monitor..."
-open_tab "Quorum Events" "echo 'Waiting for quorum events...'; while [ ! -f /tmp/quorum.log ]; do sleep 2; done; echo 'Monitoring quorum decisions...'; tail -f /tmp/quorum.log"
+open_tab "Quorum Events" "echo 'Waiting for quorum events...'; while [ ! -f logs/quorum.log ]; do sleep 2; done; echo 'Monitoring quorum decisions...'; tail -f logs/quorum.log"
 
 echo ""
 echo "=========================================="

@@ -164,7 +164,7 @@ sleep 1
 # Terminal 2: Worker Logs Monitor
 echo "2. Opening Worker Logs terminal..."
 # This now uses the open_tab function defined at the top
-open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f /tmp/worker_3200.log ]; do sleep 2; echo 'Still waiting for allocation from Machine 1...'; done; echo 'Workers detected! Monitoring logs...'; tail -f /tmp/worker_*.log"
+open_tab "Worker Logs" "echo 'Waiting for workers to start...'; while [ ! -f logs/worker_3200.log ]; do sleep 2; echo 'Still waiting for allocation from Machine 1...'; done; echo 'Workers detected! Monitoring logs...'; tail -f logs/worker_*.log"
 
 echo ""
 echo "Checking Machine 1 connectivity..."
