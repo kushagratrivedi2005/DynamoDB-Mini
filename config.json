@@ -19,12 +19,6 @@
             "hostname": "machine2",
             "ip": "10.2.137.162",
             "vnodes": 4
-        },
-        {
-            "username": "default",
-            "hostname": "machine3",
-            "ip": "10.2.133.235",
-            "vnodes": 4
         }
     ],
     "timeouts": {
@@ -35,9 +29,9 @@
         "replicated": 15
     },
     "quorum": {
-        "N": 9,
-        "R": 5,
-        "W": 9
+        "N": 8,
+        "R": 4,
+        "W": 8
     },
     "retries": {
         "replica": 2,
