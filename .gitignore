@@ -1,4 +1,4 @@
 .venv
-__pycache__/logs/
+__pycache__/
 logs/*
 dump.rdb
