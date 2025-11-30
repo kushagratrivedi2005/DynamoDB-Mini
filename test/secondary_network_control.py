@@ -6,6 +6,7 @@ Allows blocking/healing connections to Machine 1
 
 import subprocess
 import sys
+import platform
 from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 import utils.config as config
@@ -56,33 +57,69 @@ def block_machine1():
     worker_ports.extend([syntactic_start + i for i in range(num_vnodes)])
     worker_ports.extend([semantic_start + i for i in range(num_vnodes)])
     
-    # Block Machine 1 from accessing this machine's workers
-    for port in worker_ports:
-        # Block incoming connections from Machine 1 to THIS machine's workers
-        cmd_in = f"sudo iptables -I INPUT 1 -s {machine1_ip} -p tcp --dport {port} -j DROP"
-        subprocess.run(cmd_in, shell=True, stderr=subprocess.DEVNULL)
-        
-        # Block outgoing responses from THIS machine's workers to Machine 1
-        cmd_out = f"sudo iptables -I OUTPUT 1 -d {machine1_ip} -p tcp --sport {port} -j DROP"
-        subprocess.run(cmd_out, shell=True, stderr=subprocess.DEVNULL)
+    system = platform.system()
     
-    print(f"✅ Blocked Machine 1 ({machine1_ip}) from accessing this machine's workers")
+    if system == "Darwin":  # macOS
+        print("Detected macOS. Using pfctl...")
+        # Create rules
+        anchor_rules = ""
+        for port in worker_ports:
+            # Block incoming from Machine 1
+            anchor_rules += f"block drop quick proto tcp from {machine1_ip} to any port {port}\n"
+            # Block outgoing to Machine 1 (responses)
+            anchor_rules += f"block drop quick proto tcp from any port {port} to {machine1_ip}\n"
+        
+        try:
+            # Ensure pfctl is enabled
+            subprocess.run("sudo pfctl -e", shell=True, check=False, stderr=subprocess.DEVNULL)
+            
+            # Load rules into MAIN ruleset
+            cmd = f"echo '{anchor_rules}' | sudo pfctl -f -"
+            subprocess.run(cmd, shell=True, check=True)
+            
+            print(f"✅ Blocked Machine 1 ({machine1_ip}) using pfctl")
+            
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to partition network on macOS: {e}")
+            return
+
+    else:  # Linux (default to iptables)
+        print("Detected Linux. Using iptables...")
+        # Block Machine 1 from accessing this machine's workers
+        for port in worker_ports:
+            # Block incoming connections from Machine 1 to THIS machine's workers
+            cmd_in = f"sudo iptables -I INPUT 1 -s {machine1_ip} -p tcp --dport {port} -j DROP"
+            subprocess.run(cmd_in, shell=True, stderr=subprocess.DEVNULL)
+            
+            # Block outgoing responses from THIS machine's workers to Machine 1
+            cmd_out = f"sudo iptables -I OUTPUT 1 -d {machine1_ip} -p tcp --sport {port} -j DROP"
+            subprocess.run(cmd_out, shell=True, stderr=subprocess.DEVNULL)
+        
+        print(f"✅ Blocked Machine 1 ({machine1_ip}) using iptables")
+
     print(f"\nBlocked {len(worker_ports)} worker ports on THIS machine")
     print(f"Syntactic ports: {[syntactic_start + i for i in range(num_vnodes)]}")
     print(f"Semantic ports: {[semantic_start + i for i in range(num_vnodes)]}")
-    print("\nTo verify:")
-    print(f"  sudo iptables -L -n -v | grep {machine1_ip}")
+    
+    if system == "Darwin":
+        print("\nTo verify:")
+        print("  sudo pfctl -s rules")
+    else:
+        print("\nTo verify:")
+        print(f"  sudo iptables -L -n -v | grep {machine1_ip}")
+    
     print("\nTo heal:")
     print("  Select option 2 in this menu")
 
 def heal_network():
-    """Remove all iptables rules"""
+    """Remove all firewall rules"""
     machine1_ip, machine1_name = get_machine1_ip()
+    system = platform.system()
     
     print(f"\n{'='*50}")
     print(f"HEAL NETWORK")
     print(f"{'='*50}")
-    print(f"This will remove all iptables rules and restore connectivity")
+    print(f"This will remove all firewall rules and restore connectivity")
     print(f"{'='*50}\n")
     
     confirm = input("Proceed? (y/n): ")
@@ -90,22 +127,33 @@ def heal_network():
         print("Cancelled.")
         return
     
-    print("\nRemoving all iptables rules...")
+    print("\nRemoving all firewall rules...")
     
-    subprocess.run("sudo iptables -F", shell=True)
-    subprocess.run("sudo iptables -X", shell=True)
-    subprocess.run("sudo iptables -t nat -F", shell=True)
-    subprocess.run("sudo iptables -t nat -X", shell=True)
-    subprocess.run("sudo iptables -t mangle -F", shell=True)
-    subprocess.run("sudo iptables -t mangle -X", shell=True)
+    if system == "Darwin":  # macOS
+        try:
+            # Restore the default rules from /etc/pf.conf
+            cmd = "sudo pfctl -f /etc/pf.conf"
+            subprocess.run(cmd, shell=True, check=True)
+            print(f"✅ Network partition healed on macOS (Restored /etc/pf.conf)")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to heal network on macOS: {e}")
+            
+    else:  # Linux (default to iptables)
+        subprocess.run("sudo iptables -F", shell=True)
+        subprocess.run("sudo iptables -X", shell=True)
+        subprocess.run("sudo iptables -t nat -F", shell=True)
+        subprocess.run("sudo iptables -t nat -X", shell=True)
+        subprocess.run("sudo iptables -t mangle -F", shell=True)
+        subprocess.run("sudo iptables -t mangle -X", shell=True)
+        print(f"✅ All iptables rules removed")
     
-    print(f"✅ All iptables rules removed")
     print(f"✅ Network connectivity restored with Machine 1")
 
 def show_status():
-    """Show current iptables rules"""
+    """Show current firewall rules"""
     machine1_ip, machine1_name = get_machine1_ip()
     current_host, current_ip = get_current_machine_info()
+    system = platform.system()
     
     print(f"\n{'='*50}")
     print(f"NETWORK STATUS")
@@ -114,23 +162,37 @@ def show_status():
     print(f"Machine 1: {machine1_name} ({machine1_ip})")
     print(f"{'='*50}\n")
     
-    print("Active iptables rules related to Machine 1:")
-    result = subprocess.run(
-        f"sudo iptables -L -n -v | grep {machine1_ip} | head -20",
-        shell=True,
-        capture_output=True,
-        text=True
-    )
+    print("Active firewall rules:")
     
-    if result.stdout.strip():
-        print(result.stdout)
-        print("\n⚠ Traffic to Machine 1 is BLOCKED")
-    else:
-        print("No blocking rules found")
-        print("\n✓ Traffic to Machine 1 is ALLOWED")
-    
-    print(f"\nTo see all rules:")
-    print(f"  sudo iptables -L -n -v")
+    if system == "Darwin":  # macOS
+        result = subprocess.run(
+            "sudo pfctl -s rules",
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        # Check if our specific block rules exist
+        if f"from {machine1_ip}" in result.stdout or f"to {machine1_ip}" in result.stdout:
+             print(result.stdout)
+             print("\n⚠ Traffic to Machine 1 is BLOCKED")
+        else:
+             print("No specific blocking rules found for Machine 1")
+             print("\n✓ Traffic to Machine 1 is likely ALLOWED")
+             
+    else:  # Linux
+        result = subprocess.run(
+            f"sudo iptables -L -n -v | grep {machine1_ip} | head -20",
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        
+        if result.stdout.strip():
+            print(result.stdout)
+            print("\n⚠ Traffic to Machine 1 is BLOCKED")
+        else:
+            print("No blocking rules found")
+            print("\n✓ Traffic to Machine 1 is ALLOWED")
 
 def main():
     """Main menu loop"""
