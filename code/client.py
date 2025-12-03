@@ -355,7 +355,7 @@ class Client(rpyc.Service):
                     print (f"GET trying node ...{node_hash[-10:]} at {url}")
                     
                     # Connect with 3-second socket timeout to fail fast on blocked ports
-                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': 60, 'connect_timeout': 3})
                     res = conn.root.exposed_get(key)
                     print (f"Response : {res['status']}")
                     
@@ -415,7 +415,7 @@ class Client(rpyc.Service):
                     print (f"PUT trying node ...{node_hash[-10:]} at {url}")
 
                     # Connect with 3-second socket timeout to fail fast on blocked ports
-                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': 60, 'connect_timeout': 3})
                     res = conn.root.exposed_put(key, value)
                     print (f"Response : {res['status']}")
                     if res["status"] == self.SUCCESS: 
@@ -449,7 +449,7 @@ class Client(rpyc.Service):
                     print (f"URL = {url}")
 
                     # Connect with 3-second socket timeout to fail fast on blocked ports
-                    conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
+                    conn = rpyc.connect(*url, config={'sync_request_timeout': 60, 'connect_timeout': 3})
                     # Call exposed_append on the worker
                     if hasattr(conn.root, 'exposed_append'):
                         res = conn.root.exposed_append(key, value)
