@@ -19,6 +19,12 @@
             "hostname": "machine2",
             "ip": "10.241.71.211",
             "vnodes": 3
+        },
+        {
+            "username": "default",
+            "hostname": "machine3",
+            "ip": "10.241.71.183",
+            "vnodes": 3
         }
     ],
     "timeouts": {
