@@ -318,5 +318,6 @@ We apologize for any limitations and welcome contributions to enhance the system
 
 
 ---
+PPT Link: https://www.canva.com/design/DAG6NY8vIJE/FtC9Kt_sm9xyAJZnIXTXpw/view?utm_content=DAG6NY8vIJE&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hbdcba3b56b
 
 **Need help?** Check `run_instructions.md` or `system_design_diagrams/`.

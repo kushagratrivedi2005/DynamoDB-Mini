@@ -10,21 +10,15 @@
     "nodes": [
         {
             "username": "default",
-            "hostname": "localhost",
-            "ip": "10.2.128.204",
-            "vnodes": 20
+            "hostname": "machine1",
+            "ip": "10.241.71.169",
+            "vnodes": 3
         },
         {
             "username": "default",
             "hostname": "machine2",
-            "ip": "10.2.137.162",
-            "vnodes": 20
-        },
-        {
-            "username": "default",
-            "hostname": "machine3",
-            "ip": "10.2.136.226",
-            "vnodes": 20
+            "ip": "10.241.71.211",
+            "vnodes": 3
         }
     ],
     "timeouts": {
@@ -37,7 +31,7 @@
     "quorum": {
         "N": 4,
         "R": 2,
-        "W": 2
+        "W": 3
     },
     "retries": {
         "replica": 2,

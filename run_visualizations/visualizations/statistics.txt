@@ -1,0 +1,45 @@
+============================================================
+  PUT Latency Statistics
+============================================================
+  Sample Size: 99 operations
+  Average: 222.92 ms
+  Median (p50): 221.00 ms
+  p95: 231.10 ms
+  p99: 242.62 ms
+  Min: 212.00 ms
+  Max: 273.00 ms
+  Std Dev: 6.92 ms
+
+============================================================
+  GET Latency Statistics
+============================================================
+  Sample Size: 100 operations
+  Average: 228.00 ms
+  Median (p50): 227.50 ms
+  p95: 236.10 ms
+  p99: 261.05 ms
+  Min: 216.00 ms
+  Max: 266.00 ms
+  Std Dev: 6.76 ms
+
+============================================================
+  Overall Latency Statistics
+============================================================
+  Sample Size: 199 operations
+  Average: 225.47 ms
+  Median (p50): 225.00 ms
+  p95: 235.00 ms
+  p99: 261.10 ms
+  Min: 212.00 ms
+  Max: 273.00 ms
+  Std Dev: 7.30 ms
+
+============================================================
+  Throughput Analysis
+============================================================
+  Total Operations: 199
+  Successful: 199 (100.0%)
+  Time Span: 63.00 seconds
+  Throughput: 3.16 ops/sec
+  PUT Throughput: 1.57 ops/sec
+  GET Throughput: 1.59 ops/sec

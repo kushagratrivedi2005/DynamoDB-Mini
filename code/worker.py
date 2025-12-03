@@ -96,7 +96,35 @@ class Worker(rpyc.Service):
         '''
         Meta data a worker need to have
         '''
-        self.ip:str = 'localhost'
+        # Get the actual IP address of this machine
+        import socket
+        try:
+            # Connect to an external address to determine the local IP
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            self.ip = s.getsockname()[0]
+            s.close()
+            logging.debug(f"Worker detected IP address: {self.ip}")
+        except Exception as e:
+            # Fallback: try to get from config based on hostname
+            import socket as sock_module
+            hostname = sock_module.gethostname()
+            logging.debug(f"Socket method failed, using hostname: {hostname}")
+            
+            # Try to match hostname with config
+            nodes = config.get_nodes()
+            self.ip = None
+            for node in nodes:
+                if node.get('hostname') == hostname or node.get('hostname') == 'localhost':
+                    self.ip = node.get('ip')
+                    logging.debug(f"Matched hostname '{hostname}' to IP: {self.ip}")
+                    break
+            
+            # Final fallback
+            if not self.ip:
+                self.ip = 'localhost'
+                logging.warning(f"Could not determine IP, using 'localhost'")
+        
         self.port:int = port # port at which this worker node will server
         self.start_of_range:str = "-1" 
         self.end_of_range: str = "-1"
@@ -832,17 +860,24 @@ class Worker(rpyc.Service):
     def exposed_fetch_routing_info(self, key:str, need_serialized=True):
         logging.debug ("SOME ONE NEED ROUTING TABLES...")
         self_active_nodes = list(self.routing_table.keys())
-        self_active_nodes.sort()
+        # Convert to int for proper sorting and bisect
+        self_active_nodes_int = [int(node) for node in self_active_nodes]
+        self_active_nodes_int.sort()
         key_hash = str(self.hash_function(key))
-        idx = bisect(self_active_nodes, key_hash)
-        idx = 0 if idx == len(self_active_nodes) else idx
-        controller_node = self_active_nodes[idx]
+        key_hash_int = int(key_hash)
+        idx = bisect(self_active_nodes_int, key_hash_int)
+        idx = 0 if idx == len(self_active_nodes_int) else idx
+        controller_node = str(self_active_nodes_int[idx])
+        logging.debug(f"FETCH_ROUTING_INFO - Key: {key}, KeyHash: {key_hash_int}, ControllerNode: {controller_node}, Idx: {idx}, TotalNodes: {len(self_active_nodes_int)}")
         replica_nodes = {}
-        n = len(self_active_nodes)
+        n = len(self_active_nodes_int)
         # since it is a ring, we need to do %
-        for pos in range(0, min(len(self_active_nodes), self.N)):
-            node_hash = self_active_nodes[(idx + pos) % n]
-            replica_nodes[node_hash] = self.routing_table[node_hash] 
+        for pos in range(0, min(len(self_active_nodes_int), self.N)):
+            node_hash = str(self_active_nodes_int[(idx + pos) % n])
+            replica_nodes[node_hash] = self.routing_table[node_hash]
+        
+        logging.debug(f"FETCH_ROUTING_INFO - Replica nodes: {list(replica_nodes.keys())}")
+        logging.debug(f"FETCH_ROUTING_INFO - Controller in replicas? {controller_node in replica_nodes}")
 
         if need_serialized:
             replica_nodes = pickle.dumps(self.serialize(replica_nodes))
@@ -1108,6 +1143,11 @@ class Worker(rpyc.Service):
         self.get_requests_log[request_id] = {"fresh_value": fresh_value, "fresh_timestamp": fresh_timestamp, "count_responses": count_responses}
         self.get_requests_log[request_id + '__NODE__']  = []
 
+        # Convert to int for proper numeric comparison
+        key_hash_int = int(key_hash)
+        start_int = int(start)
+        end_int = int(end)
+
         print(f"\n{'='*60}")
         print(f"GET QUORUM CHECK for key '{key}'")
         print(f"{'='*60}")
@@ -1138,7 +1178,7 @@ class Worker(rpyc.Service):
         # return {"status": self.FAILURE, "msg": "Service unavailable! Retry again"}
 
 
-        if ((start > end and (key_hash >= start or key_hash <= end)) or (start <= key_hash and key_hash < end)):    
+        if ((start_int > end_int and (key_hash_int >= start_int or key_hash_int <= end_int)) or (start_int <= key_hash_int and key_hash_int <= end_int)):    
             logging.debug ("At the right node for READ!....")
             def callback(response):
                 try:
@@ -1276,11 +1316,17 @@ class Worker(rpyc.Service):
         key_hash = str(self.hash_function(key)) # to locate the key in the ring
         start, end = self.start_of_range, self.end_of_range 
         replica_nodes, controller_node = self.exposed_fetch_routing_info(key=key, need_serialized=False)
-        print(" let's see start ")
-        print(start,end)
-        print(key_hash)
+        
+        # Convert to int for proper numeric comparison (not string comparison!)
+        key_hash_int = int(key_hash)
+        start_int = int(start)
+        end_int = int(end)
+        
+        logging.debug(f"PUT RANGE CHECK - Node: {self.port}, Key: {key}, KeyHash: {key_hash_int}")
+        logging.debug(f"PUT RANGE CHECK - Start: {start_int}, End: {end_int}, Controller: {controller_node}")
+        logging.debug(f"PUT RANGE CHECK - Self is controller? {self.end_of_range == controller_node}")
 
-        if ((start > end and (key_hash >= start or key_hash <= end)) or (start <= key_hash and key_hash < end)):    
+        if ((start_int > end_int and (key_hash_int >= start_int or key_hash_int <= end_int)) or (start_int <= key_hash_int and key_hash_int <= end_int)):    
             logging.debug ("OK, Correct node (controller) to put")
             logging.debug ("Writing to REDIS..")
             
@@ -1486,7 +1532,12 @@ class Worker(rpyc.Service):
         start, end = self.start_of_range, self.end_of_range 
         replica_nodes, controller_node = self.exposed_fetch_routing_info(key=key, need_serialized=False)
 
-        if ((start > end and (key_hash >= start or key_hash <= end)) or (start <= key_hash and key_hash < end)):    
+        # Convert to int for proper numeric comparison
+        key_hash_int = int(key_hash)
+        start_int = int(start)
+        end_int = int(end)
+
+        if ((start_int > end_int and (key_hash_int >= start_int or key_hash_int <= end_int)) or (start_int <= key_hash_int and key_hash_int <= end_int)):    
             logging.debug ("OK, Correct node (controller) to append")
             
             with self.rds.pipeline() as pipe:

@@ -226,7 +226,8 @@ class Client(rpyc.Service):
             else:     # if this is the fresh entry then simply update
                 self.cache_lock.acquire()
                 self.all_nodes.append(node_hash)
-                self.all_nodes.sort()
+                # Sort numerically, not as strings
+                self.all_nodes.sort(key=lambda x: int(x))
                 self.cache[node_hash] = {"vector_clock": vc, "updated_time": curr_time}
                 self.cache_lock.release()
         
@@ -282,13 +283,33 @@ class Client(rpyc.Service):
         if self.cache_is_stale(key): # Fetch in case it is not there.
             self.get_routing_info(key)
         controller_node = self.locate_key[key]
-        controller_node_idx = bisect(self.all_nodes, controller_node)
-        controller_node_idx = controller_node_idx - 1 if controller_node_idx else 0 
-        n = len(self.all_nodes)
+        
+        print(f"CLIENT DEBUG - Key: {key}, Controller: {controller_node}")
+        print(f"CLIENT DEBUG - Cache keys: {list(self.cache.keys())}")
+        print(f"CLIENT DEBUG - Cache has controller? {controller_node in self.cache}")
+        
+        # Return all cached nodes that could be replicas for this key
+        # The cache should already contain the N replicas from fetch_routing_info
+        # Just return them in order, with controller first if it's in the cache
         key_contained_by = []
-        #* Since it is a ring, not a linear chain, we need to do %
-        for pos in range(0, min(n ,self.READ)):
-            key_contained_by.append(self.all_nodes[(controller_node_idx + pos) % n])
+        
+        # First, try to add the controller node
+        if controller_node in self.cache:
+            key_contained_by.append(controller_node)
+        
+        # Then add other nodes from the cache (these are potential replicas)
+        for node_hash in self.all_nodes:
+            if node_hash not in key_contained_by and node_hash in self.cache:
+                key_contained_by.append(node_hash)
+                if len(key_contained_by) >= self.READ:
+                    break
+        
+        print(f"CLIENT DEBUG - Nodes to try: {key_contained_by}")
+        for node in key_contained_by:
+            if node in self.cache:
+                vc = self.cache[node]["vector_clock"]
+                print(f"  -> {node}: {vc.ip}:{vc.port}")
+        
         return controller_node, key_contained_by
 
 
@@ -299,17 +320,40 @@ class Client(rpyc.Service):
     '''
     def exposed_get(self, key):
         print ("GET is called!")
-        controller_node, key_contained_by = self.get_key_containing_nodes(key)
         retry_count:int = 0
         while retry_count < self.RETRIES:
             print (f"Retrying ... {retry_count + 1}" )
             retry_count += 1
+            
+            # Get fresh routing info directly from a worker
+            try:
+                node = random.randint(0, len(self.nodes) - 1)
+                who = random.randint(0, self.nodes[node]["vnodes"] - 1)
+                url = (self.nodes[node]["ip"], int(self.nodes[node]["port"]) + who)
+                print(f"Fetching routing info from {url}")
+                conn = rpyc.connect(*url, config={'sync_request_timeout': 5, 'connect_timeout': 3})
+                replica_nodes, controller_node = conn.root.fetch_routing_info(key)
+                replica_nodes = self.deserialize(pickle.loads(replica_nodes))
+                print(f"Controller: {controller_node}")
+                print(f"Replicas: {list(replica_nodes.keys())}")
+            except Exception as e:
+                print(f"Failed to get routing info: {e}")
+                continue
+            
+            # Try controller first, then other replicas
+            nodes_to_try = [controller_node] + [n for n in replica_nodes.keys() if n != controller_node]
+            
             break_reason = ''
             res = None
-            for node in key_contained_by:
+            for node_hash in nodes_to_try:
                 try:
-                    vc = self.cache[node]['vector_clock'] 
+                    if node_hash not in replica_nodes:
+                        print(f"SKIP: Node {node_hash} not in replica_nodes")
+                        continue
+                    vc = replica_nodes[node_hash]
                     url = (vc.ip, vc.port) 
+                    print (f"GET trying node ...{node_hash[-10:]} at {url}")
+                    
                     # Connect with 3-second socket timeout to fail fast on blocked ports
                     conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
                     res = conn.root.exposed_get(key)
@@ -320,14 +364,14 @@ class Client(rpyc.Service):
                         return {"status": self.SUCCESS, "value": res['value']}
                     elif res['status'] == self.INVALID_RESOURCE: 
                         break_reason = self.INVALID_RESOURCE
-                        # break
+                        break  # Need to refresh routing info
                 except Exception as e:
-                    print ("Some thing bad happen ", e)
+                    print ("Exception in client get", e)
                     pass 
-            if break_reason == self.INVALID_RESOURCE: 
-                self.update_cache(key, res["replica_nodes"], res["controller_node"])
-            else:
-                break
+                    
+            if break_reason != self.INVALID_RESOURCE:
+                break  # No need to retry if not INVALID_RESOURCE
+                
         return {"status": self.FAILURE, "msg": "Fail in get!"}
 
     '''
@@ -338,16 +382,37 @@ class Client(rpyc.Service):
         print (f"PUT IS CALLED: {key}, {value}")
         retry_count:int = 0
         while retry_count < self.RETRIES:
-            controller_node, key_contained_by = self.get_key_containing_nodes(key)
             print (f"Retrying ... {retry_count + 1}" )
             retry_count += 1
+            
+            # Get fresh routing info directly from a worker
+            try:
+                node = random.randint(0, len(self.nodes) - 1)
+                who = random.randint(0, self.nodes[node]["vnodes"] - 1)
+                url = (self.nodes[node]["ip"], int(self.nodes[node]["port"]) + who)
+                print(f"Fetching routing info from {url}")
+                conn = rpyc.connect(*url, config={'sync_request_timeout': 5, 'connect_timeout': 3})
+                replica_nodes, controller_node = conn.root.fetch_routing_info(key)
+                replica_nodes = self.deserialize(pickle.loads(replica_nodes))
+                print(f"Controller: {controller_node}")
+                print(f"Replicas: {list(replica_nodes.keys())}")
+            except Exception as e:
+                print(f"Failed to get routing info: {e}")
+                continue
+            
+            # Try controller first, then other replicas
+            nodes_to_try = [controller_node] + [n for n in replica_nodes.keys() if n != controller_node]
+            
             break_reason = ''
             res = None
-            for node in key_contained_by:
+            for node_hash in nodes_to_try:
                 try:
-                    vc = self.cache[node]["vector_clock"] 
+                    if node_hash not in replica_nodes:
+                        print(f"SKIP: Node {node_hash} not in replica_nodes")
+                        continue
+                    vc = replica_nodes[node_hash]
                     url = (vc.ip, vc.port) 
-                    print (f"URL = {url}")
+                    print (f"PUT trying node ...{node_hash[-10:]} at {url}")
 
                     # Connect with 3-second socket timeout to fail fast on blocked ports
                     conn = rpyc.connect(*url, config={'sync_request_timeout': 30, 'connect_timeout': 3})
@@ -358,12 +423,14 @@ class Client(rpyc.Service):
                         return {"status": self.SUCCESS, "value": res['msg']}
                     elif res["status"] == self.INVALID_RESOURCE: 
                         break_reason = self.INVALID_RESOURCE
-                        # break
+                        break  # Need to refresh routing info
                 except Exception as e:
-                    print ("Expection in client put", e)
+                    print ("Exception in client put", e)
                     pass 
-            if break_reason == self.INVALID_RESOURCE: 
-                self.update_cache(key, res["replica_nodes"], res["controller_node"])
+                    
+            if break_reason != self.INVALID_RESOURCE:
+                break  # No need to retry if not INVALID_RESOURCE
+                
         return {"status": self.FAILURE, "msg": "Fail in PUT!"}
 
     def exposed_append(self, key, value):
