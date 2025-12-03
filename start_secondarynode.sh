@@ -121,7 +121,7 @@ fi
 # Check connectivity to Machine 1
 echo ""
 echo "Checking connectivity to Machine 1..."
-machine1_ip=$(grep -A 5 '"localhost"' config.json | grep '"ip"' | cut -d'"' -f4)
+machine1_ip=$(grep -A 5 '"machine1"' config.json | grep '"ip"' | cut -d'"' -f4)
 echo "Machine 1 IP from config.json: $machine1_ip"
 
 if ping -c 2 "$machine1_ip" &>/dev/null; then
